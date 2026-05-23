@@ -1,0 +1,32 @@
+{
+  "name": "Cogninoid Labs",
+  "short_name": "Cogninoid",
+  "description": "AI Robotics, Embodied Intelligence & Human–Machine Systems Research Studio",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#04040f",
+  "theme_color": "#22d3ee",
+  "lang": "en",
+  "scope": "/",
+  "categories": ["technology", "science", "education"],
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "48x48",
+      "type": "image/x-icon",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "label": "Cogninoid Labs — Home"
+    }
+  ]
+}
