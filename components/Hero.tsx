@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { ArrowRight, Mail, Brain, Bot, Code2, Cpu, Activity, RefreshCw } from "lucide-react";
 import { GithubIcon } from "@/components/BrandIcons";
-import NeuralNetworkCanvas from "@/components/NeuralNetworkCanvas";
+import EnhancedHeroBg from "@/components/EnhancedHeroBg";
 
 const workflowSteps = [
   { icon: Brain,     label: "Human Idea",       color: "from-violet-500 to-violet-600", glow: "shadow-violet-500/30" },
@@ -19,15 +19,15 @@ export default function Hero() {
   return (
     <section className="relative min-h-screen flex items-center pt-16 overflow-hidden">
 
-      {/* ── Neural-network canvas background ──────────────────────────── */}
+      {/* ── Enhanced animation background ─────────────────────────────── */}
       <div className="absolute inset-0">
-        <NeuralNetworkCanvas className="w-full h-full opacity-55" />
+        <EnhancedHeroBg className="w-full h-full" />
       </div>
 
-      {/* ── Gradient overlay — keeps left readable, fades right ───────── */}
-      <div className="absolute inset-0 bg-gradient-to-r from-[#04040f] via-[#04040f]/85 to-[#04040f]/30 pointer-events-none" />
+      {/* ── Subtle gradient overlay — readable text, visible animation ── */}
+      <div className="absolute inset-0 bg-gradient-to-r from-[#04040f]/80 via-[#04040f]/30 to-transparent pointer-events-none" />
       {/* Top & bottom vignette */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#04040f]/60 via-transparent to-[#04040f]/80 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-[#04040f]/50 via-transparent to-[#04040f]/70 pointer-events-none" />
 
       {/* ── Ambient colour blobs (on top of canvas) ───────────────────── */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -57,7 +57,10 @@ export default function Hero() {
             initial={{ opacity: 0, y: 36 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            className="relative"
           >
+            {/* Glassmorphism backdrop for text readability */}
+            <div className="absolute -inset-6 bg-[#04040f]/40 backdrop-blur-sm rounded-3xl -z-10" />
             {/* Pill */}
             <motion.div
               initial={{ opacity: 0, scale: 0.85 }}
