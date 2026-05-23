@@ -4,8 +4,9 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Cpu } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { GithubIcon } from "@/components/BrandIcons";
+import { LogoMark } from "@/components/LogoSVG";
 
 const navLinks = [
   { href: "/projects", label: "Projects" },
@@ -41,11 +42,8 @@ export default function Navbar() {
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="relative w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-400 via-blue-500 to-violet-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
-              <Cpu className="w-4 h-4 text-white" strokeWidth={2} />
-              <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-cyan-400 to-violet-600 opacity-0 group-hover:opacity-100 blur-sm transition-opacity duration-300" />
-            </div>
+          <Link href="/" className="flex items-center gap-2 group">
+            <LogoMark size={38} className="flex-shrink-0 drop-shadow-[0_0_6px_rgba(34,211,238,0.3)] group-hover:drop-shadow-[0_0_10px_rgba(34,211,238,0.5)] transition-all duration-300" />
             <span className="font-semibold text-white text-sm tracking-wide group-hover:text-cyan-400 transition-colors duration-200">
               Cogninoid Labs
             </span>

@@ -1,6 +1,9 @@
+"use client";
+
 import Link from "next/link";
-import { Mail, Cpu } from "lucide-react";
+import { Mail } from "lucide-react";
 import { GithubIcon, LinkedinIcon, TwitterIcon } from "@/components/BrandIcons";
+import { LogoMark } from "@/components/LogoSVG";
 
 const navLinks = [
   { href: "/projects", label: "Projects" },
@@ -43,10 +46,8 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
           {/* Brand column */}
           <div className="md:col-span-2">
-            <div className="flex items-center gap-2.5 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-400 via-blue-500 to-violet-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
-                <Cpu className="w-4 h-4 text-white" strokeWidth={2} />
-              </div>
+            <div className="flex items-center gap-2 mb-4">
+              <LogoMark size={40} />
               <span className="font-semibold text-white text-sm tracking-wide">
                 Cogninoid Labs
               </span>
