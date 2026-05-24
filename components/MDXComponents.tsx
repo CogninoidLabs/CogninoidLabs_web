@@ -22,6 +22,7 @@ import ConceptMap from "./ConceptMap";
 import LearningObjectives from "./LearningObjectives";
 import OpenQuestionsBox from "./OpenQuestionsBox";
 import ResourceBox from "./ResourceBox";
+import ComponentDiagram from "./ComponentDiagram";
 
 export const mdxComponents: MDXComponents = {
   // Standard HTML elements — styled to match dark theme
@@ -133,4 +134,5 @@ export const mdxComponents: MDXComponents = {
   LearningObjectives,
   OpenQuestionsBox,
   ResourceBox,
+  ComponentDiagram,
 };
