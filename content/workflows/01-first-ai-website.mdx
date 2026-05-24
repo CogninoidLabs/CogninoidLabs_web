@@ -193,8 +193,8 @@ Import the repository on Vercel. Your site will be live in ~30 seconds.
 
 </ChecklistBox>
 
-<NextStepBox steps={[
-  { label: "Push a project to GitHub", href: "/workflows/02-push-to-github", description: "Deeper Git workflow" },
-  { label: "Deploy GitHub repo to Vercel", href: "/workflows/03-deploy-to-vercel", description: "Full deployment configuration" },
-  { label: "Debug AI-generated code", href: "/workflows/07-debug-ai-code", description: "When things go wrong" }
-]} />
+<NextStepBox>
+  <NextStep href="/workflows/02-push-to-github" label="Push a project to GitHub" description="Deeper Git workflow" />
+  <NextStep href="/workflows/03-deploy-to-vercel" label="Deploy GitHub repo to Vercel" description="Full deployment configuration" />
+  <NextStep href="/workflows/07-debug-ai-code" label="Debug AI-generated code" description="When things go wrong" />
+</NextStepBox>

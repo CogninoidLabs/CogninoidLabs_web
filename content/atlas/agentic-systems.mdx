@@ -1,0 +1,176 @@
+---
+title: "Agentic Systems"
+description: "Agentic systems are AI architectures where a model reasons, plans, takes actions through tools, observes results, and iterates toward a goal — forming closed loops between AI reasoning and the external world."
+difficulty: intermediate
+order: 5
+tags: ["agents", "planning", "tool use", "ReAct", "memory", "autonomous AI"]
+category: "Cogninoid Atlas"
+---
+
+<LearningObjectives>
+- What distinguishes an agent from a prompted AI model
+- The core agent loop: observe, reason, act, observe
+- How tool use, memory, and reflection are implemented in practice
+- The failure modes of agentic systems and how to build safe ones
+- How to build a verifiable agent for software engineering tasks
+</LearningObjectives>
+
+## 1. What is an Agentic System?
+
+A **prompt** takes a model input and produces an output. An **agent** does something more: it observes the current state, reasons about what to do, takes an action through a tool, observes the result, and repeats until the goal is achieved. The defining property is the **closed loop between AI reasoning and the external world**.
+
+An agent differs from a chatbot in that it:
+- Takes real actions (write files, run code, call APIs, query databases, send messages)
+- Maintains state across steps
+- Plans a sequence of actions toward a goal, not just a single response
+- Can encounter unexpected results and adapt
+
+<MentalModelBox title="An agent is a decision loop, not a response generator">
+A chatbot receives a message and produces a reply. An agent receives a task and executes a plan: it calls a tool, observes the result, updates its understanding of the situation, calls the next tool, and so on until done. The loop is: **observe → reason → act → observe**. Each iteration changes the world, making the next reasoning step different from the last.
+</MentalModelBox>
+
+## 2. Why it matters
+
+The gap between "AI that can answer questions about code" and "AI that can actually write, debug, and deploy code" is the agentic gap. Closing it requires:
+
+- **Tool use** — the model can invoke real operations, not just describe them
+- **Multi-step planning** — goals that require more than one action
+- **Memory** — state that persists across tool calls
+- **Error recovery** — handling unexpected results and retrying with updated plans
+
+Agentic AI enables: autonomous software engineering (SWE-agent, Devin), scientific experiment design (AI lab assistants), robotic task execution, and complex data pipeline management.
+
+## 3. Fundamental building blocks
+
+**The ReAct loop** (Yao et al., 2023): Reasoning and Acting interleaved. The agent produces a Thought (reasoning about the current situation), then an Action (tool call), then observes the Observation (tool result), then another Thought, and so on.
+
+```
+Thought: I need to find all Python files in this directory.
+Action: list_files(".")
+Observation: ["main.py", "utils.py", "tests/test_main.py"]
+Thought: Now I need to check if main.py has any syntax errors.
+Action: run_linter("main.py")
+Observation: Line 42: SyntaxError — unexpected EOF
+Thought: I'll fix the syntax error in main.py.
+Action: edit_file("main.py", line=42, content="}")
+Observation: File updated successfully.
+```
+
+**Memory types**:
+- *In-context (working)*: the current conversation and tool call history
+- *External (episodic)*: a vector database of past observations, retrieved by similarity
+- *Parametric*: knowledge encoded in model weights (cannot be updated at runtime)
+
+**Tool types**:
+- *Read tools*: search, read files, query databases — observe world state
+- *Write tools*: create files, send messages, call APIs — change world state
+- *Compute tools*: run code, call calculators, execute workflows
+- *Human-in-the-loop tools*: pause and request human approval before irreversible actions
+
+**Planning strategies**:
+- *Single-step greedy*: act on the best current action without lookahead
+- *Tree-of-thoughts*: explore multiple reasoning branches before committing
+- *Task decomposition*: break a goal into sub-goals, assign each to a sub-agent
+
+## 4. Key scientific questions
+
+- How do agents correctly estimate when they have reached the goal versus when they are stuck in a local optimum?
+- What is the right architecture for long-horizon planning — tree search, language-model planning, or hybrid?
+- How do we measure agent reliability and safety across diverse task distributions?
+- When should an agent ask for human help rather than attempting to continue autonomously?
+- How do we prevent agents from taking irreversible harmful actions due to compounding reasoning errors?
+
+## 5. Current research frontier
+
+<ResearchFrontierBlock>
+
+**ReAct and tool-augmented reasoning** — Yao et al. (2023) introduced the ReAct framework, showing that interleaving reasoning and acting substantially outperforms either alone on question-answering and decision-making tasks. This is now the standard architecture for LLM agents.
+
+**Reflexion and self-improvement** — Shinn et al. (2023) showed that verbal reinforcement — having the agent produce a self-critique after failure and retry — improves task completion rates significantly without any weight updates. This is effective-in-practice but raises questions about whether the model is genuinely reasoning or surface-matching its own critique format.
+
+**SWE-agent and software engineering** — Yang et al. (2024) demonstrated that agents with file editing, code execution, and testing tools can resolve real GitHub issues from SWE-bench at 14–48% success rates (depending on model). This is the highest-profile demonstration of agentic AI on real engineering tasks.
+
+**Multi-agent architectures** — Park et al. (2023) showed generative agents (communities of LLM agents in a simulated environment) produce emergent social behaviours. MetaGPT (Hong et al., 2023) uses specialised agents (architect, engineer, tester) collaborating on software projects.
+
+**Voyager and open-ended learning** — Wang et al. (2023) showed an LLM agent in Minecraft (Voyager) that continuously discovers new skills, stores them in a skill library, and builds increasingly complex behaviours. This is the closest current system to open-ended skill acquisition.
+
+**Computer use agents** — Anthropic's Claude, OpenAI's Operator, and Google's Project Mariner enable agents to control desktop and web browser interfaces, expanding the action space to any software environment.
+
+</ResearchFrontierBlock>
+
+## 6. Practical workflow
+
+Building a minimal verifiable agent:
+
+1. **Define the task precisely** — what is the success criterion? What constitutes failure?
+2. **List the tools** — what operations does the agent need? Start with the minimum set
+3. **Implement the loop** — observe state, call model with tool descriptions, parse tool call, execute, feed result back
+4. **Add logging** — every thought, action, and observation must be logged for debugging
+5. **Add human checkpoints** — before destructive operations (delete, deploy, send), require human approval
+6. **Test with adversarial tasks** — tasks designed to trigger failure: ambiguous goals, missing tools, conflicting information
+
+<SafetyNoteBox>
+Agentic systems with write access can cause irreversible damage: deleting files, sending emails, modifying databases, deploying broken code. Always implement: (1) explicit dry-run mode before real execution, (2) human approval gates before irreversible actions, (3) rate limits on writes, and (4) audit logging of every action with its rationale.
+</SafetyNoteBox>
+
+## 7. Key references
+
+<ResourceBox>
+
+**Yao, S. et al. (2023).** *ReAct: Synergizing Reasoning and Acting in Language Models.* ICLR 2023. arXiv:2210.03629. — Introduced the ReAct framework; the foundational architecture for tool-using LLM agents.
+
+**Shinn, N. et al. (2023).** *Reflexion: Language Agents with Verbal Reinforcement Learning.* NeurIPS 2023. arXiv:2303.11366. — Verbal self-critique and reflection as a path to agent improvement without weight updates.
+
+**Park, J.S. et al. (2023).** *Generative Agents: Interactive Simulacra of Human Behavior.* UIST 2023. arXiv:2304.03442. — LLM agents exhibiting emergent social behaviour in a simulated town.
+
+**Schick, T. et al. (2023).** *Toolformer: Language Models Can Teach Themselves to Use Tools.* NeurIPS 2023. arXiv:2302.04761. — Self-supervised training of tool invocation from text; eliminates need for tool-use demonstrations.
+
+**Wang, G. et al. (2023).** *Voyager: An Open-Ended Embodied Agent with Large Language Models.* arXiv:2305.16291. — Continuous skill discovery and library building in open-ended environments.
+
+**Yang, J. et al. (2024).** *SWE-agent: Agent-Computer Interfaces Enable Automated Software Engineering.* arXiv:2405.15793. — State-of-the-art agent for real GitHub issue resolution.
+
+**Nakano, R. et al. (2021).** *WebGPT: Browser-assisted question-answering with human feedback.* arXiv:2112.09332. — Early demonstration of LLM web browsing with verifiable citations.
+
+</ResourceBox>
+
+## 8. Cogninoid build direction
+
+Agentic systems are central to Cogninoid's "from vibe coding to verifiable building" mission:
+
+- **AI coding agents** — agents that write, debug, and test code with explicit verification loops and human approval gates
+- **Scientific workflow agents** — agents that design experiments, call simulation tools, interpret results, and propose next steps
+- **Robotic control agents** — agents that translate natural language goals into verified hardware commands
+- **Verifiable agentic workflows** — logging every action and its measured outcome; building dashboards over agent behaviour
+
+## 9. Beginner project
+
+**Code explanation agent**:
+
+- **Tools**: Claude API, Python `subprocess` for running code
+- **Goal**: Build an agent that takes a Python file, reads it, runs it, explains what it does, and identifies any errors
+- **Loop**: read_file → explain → run_code → observe output/errors → generate diagnosis
+- **Verification**: Test on 5 known-broken scripts; verify the agent correctly identifies the error type in each
+
+## 10. Advanced project
+
+**Verified agentic software workflow**:
+
+- **Tools**: Claude Code SDK, file system tools, `git`, test runner
+- **Goal**: Agent takes a feature description, creates a branch, writes the feature, runs the test suite, fixes failures, and opens a pull request — stopping at any failure that requires human judgement
+- **Verification**: Every action is logged; success rate across 10 tasks is measured; the agent correctly identifies when it needs help vs. when it can proceed
+
+<OpenQuestionsBox>
+
+- What is the correct formal model for long-horizon agentic planning — decision theory, POMDP, or something specific to language models?
+- How do we certify that an agent will not take harmful actions before deploying it in a new environment?
+- Is there a principled way to determine when an agent should request human help vs. attempt to continue autonomously?
+- How do multi-agent systems avoid the compounding of errors — when one agent's mistake becomes another's input?
+- Can agents develop genuine world models through tool interaction, or are they always approximate reasoning over cached world knowledge?
+
+</OpenQuestionsBox>
+
+<NextStepBox title="Continue learning">
+  <NextStep href="/atlas/toward-general-intelligence" label="Toward General Intelligence" description="The broader question of reasoning, planning, and adaptation" />
+  <NextStep href="/atlas/human-machine-interaction" label="Human–Machine Interaction" description="How humans and agents collaborate effectively" />
+  <NextStep href="/atlas/embodied-ai" label="Embodied AI" description="Agents that act in the physical world through robotic hardware" />
+</NextStepBox>

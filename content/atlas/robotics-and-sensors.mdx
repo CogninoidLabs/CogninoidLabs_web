@@ -1,0 +1,173 @@
+---
+title: "Robotics and Sensors"
+description: "Robotics studies how to design, build, and control physical systems that sense, move, and interact with the world. Sensors are the bridge between the physical environment and computation."
+difficulty: intermediate
+order: 8
+tags: ["robotics", "sensors", "kinematics", "control", "SLAM", "actuators", "signal processing"]
+category: "Cogninoid Atlas"
+---
+
+<LearningObjectives>
+- How robotic kinematics describes and controls motion in 3D space
+- The main sensor categories and how they transduce physical quantities into electrical signals
+- How feedback control keeps a system on track despite disturbances
+- What SLAM is and how robots build maps while navigating
+- How to wire, calibrate, and use a real sensor in a physical system
+</LearningObjectives>
+
+## 1. What are Robotics and Sensors?
+
+**Robotics** is the engineering discipline of designing, building, and controlling physical systems that sense their environment, reason about it, and act on it. A robot is any system with a sense-compute-act loop operating in the physical world.
+
+**Sensors** transduce physical quantities (force, temperature, orientation, distance, chemical concentration) into electrical signals that can be processed computationally. Sensors are the interface between the analogue physical world and the digital computational world.
+
+Without sensors, a robot is open-loop: it executes commands blindly without knowing if they succeeded. With sensors, a robot is closed-loop: it can detect errors, compensate for disturbances, and verify outcomes.
+
+<MentalModelBox title="Sensors are votes on the state of the physical world">
+A sensor is not truth — it is a noisy, biased, band-limited estimate of a physical quantity. A thermistor reports resistance that correlates with temperature, within a range, with a drift rate, and with noise. Building a reliable physical system means understanding and compensating for sensor limitations: calibration, filtering, fusion, and outlier rejection. Multiple sensors providing redundant measurements of the same quantity are more reliable than any single measurement.
+</MentalModelBox>
+
+## 2. Why it matters
+
+Physical AI systems — robotic arms, autonomous vehicles, smart manufacturing, wearable health monitors, scientific instruments — are only as capable as their ability to sense and react to the world. Sensor limitations are the dominant constraint on physical AI performance:
+
+- **Noise and drift** limit measurement precision
+- **Latency** creates lag between event and detection
+- **Field of view and range** limit spatial awareness
+- **Calibration error** creates systematic offsets
+- **Sensor failure** can cause catastrophic control failures
+
+Understanding sensors is prerequisite to understanding why physical AI systems fail.
+
+## 3. Fundamental building blocks
+
+**Kinematics**: The geometry of motion, without forces. Forward kinematics maps joint angles to end-effector position; inverse kinematics maps target position to required joint angles. The Denavit-Hartenberg (DH) convention (1955) provides the standard notation for serial robotic chains.
+
+**Dynamics**: The physics of motion, including forces and torques. Newton-Euler equations or the Lagrangian formulation describe how forces produce accelerations. Critical for high-speed or high-load robotic systems.
+
+**Feedback control**: PID (proportional-integral-derivative) control is the most widely deployed control algorithm. The controller computes the error between desired and actual state and applies a corrective force or voltage proportional to the error (P), its integral (I), and its derivative (D).
+
+**Sensor fusion**: Combining measurements from multiple sensors to produce an estimate better than any single sensor. The Kalman filter (Kalman, 1960) is the optimal linear estimator for Gaussian noise; the Extended Kalman Filter (EKF) and Unscented Kalman Filter (UKF) handle nonlinear systems.
+
+**SLAM**: Simultaneous Localisation and Mapping — building a map of an unknown environment while estimating the robot's position within it. Cadena et al. (2016) survey the full problem; modern approaches use factor graphs and LiDAR or visual odometry.
+
+<SignalFlowDiagram title="Robot Control Loop">
+  <FlowNode label="Reference" sublabel="Target state" color="cyan" />
+  <FlowNode label="Controller" sublabel="PID / MPC" color="blue" />
+  <FlowNode label="Actuator" sublabel="Motor, servo" color="violet" />
+  <FlowNode label="Plant" sublabel="Physical system" color="amber" />
+  <FlowNode label="Sensor" sublabel="Encoder, IMU" color="green" />
+</SignalFlowDiagram>
+
+**Key sensor categories**:
+
+| Category | Examples | Physical quantity | Output |
+|---------|---------|---------|---------|
+| Proprioceptive | Encoders, IMU, force/torque | Joint angle, acceleration, force | Position, velocity, force |
+| Exteroceptive | Camera, LiDAR, ultrasonic | Light, laser reflection, sound | Image, point cloud, distance |
+| Environmental | Temperature, humidity, gas | Thermodynamic quantities | Scalar readings |
+| Contact | Force sensors, tactile arrays | Normal/shear force | Force distribution |
+
+## 4. Key scientific questions
+
+- How do we fuse heterogeneous sensors (camera, LiDAR, force) in a way that is robust to individual sensor failure?
+- What is the theoretical minimum sensing required to perform a given manipulation task reliably?
+- How do we handle sensor latency in high-speed control loops — where 20ms delay can cause instability?
+- Can contact-rich manipulation be achieved with only proprioceptive feedback (joint angles + forces), without vision?
+- What are the principled methods for calibrating multi-sensor systems in the field without laboratory equipment?
+
+## 5. Current research frontier
+
+<ResearchFrontierBlock>
+
+**Tactile sensing** — Fingertip tactile sensors (GelSight, DIGIT, Taxim) measure contact geometry and force distribution at sub-millimetre resolution. Yuan et al. (2017) and Rodriguez group work showed that tactile feedback dramatically improves in-hand manipulation. Modern tactile skins use vision-based elastomer deformation and neural networks for real-time force estimation.
+
+**Neural radiance fields for scene understanding** — NeRF (Mildenhall et al., 2020) and its successors (3DGS — Gaussian Splatting, 2023) represent scenes as continuous volumetric functions. Robotic systems are integrating NeRFs for precise spatial reasoning and manipulation planning in known scenes.
+
+**Implicit neural force fields** — Collision-free motion planning and contact force prediction using neural implicit representations of object geometry and stiffness.
+
+**Event cameras** — Neuromorphic sensors (Dynamic Vision Sensors) fire asynchronously when pixel intensity changes exceed a threshold, rather than sampling at fixed frame rate. They offer 1μs latency and no motion blur — critical for high-speed robotics. Gallego et al. (2022) survey the full pipeline.
+
+**Proprioceptive-only manipulation** — Carnegie Mellon's work on legged robots (ANYmal, MIT Mini Cheetah) showed that reliable locomotion over complex terrain is achievable with IMU and joint encoders alone — no cameras. This demonstrates that proprioceptive feedback is information-dense when properly processed.
+
+**Soft robotics and compliant actuation** — Rigid robots struggle with contact-rich tasks due to high stiffness. Soft robots (pneumatic muscles, tendon-driven systems, variable-stiffness joints) are inherently safe for human contact and naturally compliant around objects. Trimmer et al. survey bio-inspired soft sensing.
+
+</ResearchFrontierBlock>
+
+## 6. Practical workflow
+
+Getting started with a physical sensing system:
+
+1. **Choose the sensor** — define what physical quantity you need; select a sensor that measures it in your operating range
+2. **Read the datasheet** — sensitivity, range, resolution, noise density, power requirements, interface (I2C, SPI, UART, analogue)
+3. **Wire and power correctly** — match voltage levels, add decoupling capacitors, check current draw
+4. **Implement the driver** — read raw register values; apply calibration coefficients; convert to physical units
+5. **Characterise the sensor** — measure noise floor (room temperature, no motion), drift over time, linearity across range
+6. **Close the loop** — use the sensor reading to control an actuator; verify the system reaches target state
+
+<EngineeringMindsetBox>
+Never trust a sensor reading you have not calibrated. Every sensor has an offset (zero error) and a gain error (scaling error). For an IMU: measure static gravity to find the accelerometer bias; spin slowly about a known axis to find gyroscope scale factor. For a force sensor: record the reading with no load applied (zero offset) and with a known calibration weight (gain). Calibration takes 10 minutes; uncalibrated sensors cause hours of debugging.
+</EngineeringMindsetBox>
+
+## 7. Key references
+
+<ResourceBox>
+
+**Thrun, S., Burgard, W. & Fox, D. (2005).** *Probabilistic Robotics.* MIT Press. — The definitive text on state estimation, localisation, and mapping under uncertainty. Chapters 3–7 on Kalman and particle filters are essential.
+
+**Siciliano, B. et al. (2009).** *Robotics: Modelling, Planning and Control.* Springer. — Comprehensive robotics textbook; kinematics (Ch. 2–3), dynamics (Ch. 7), and control (Ch. 8–9).
+
+**Kalman, R.E. (1960).** *A New Approach to Linear Filtering and Prediction Problems.* Journal of Basic Engineering, 82(1), 35–45. — The Kalman filter paper; one of the most cited papers in engineering history.
+
+**Denavit, J. & Hartenberg, R.S. (1955).** *A kinematic notation for lower-pair mechanisms based on matrices.* Journal of Applied Mechanics, 22(2), 215–221. — DH convention; the standard notation for robotic kinematic chains.
+
+**Cadena, C. et al. (2016).** *Past, Present, and Future of Simultaneous Localization and Mapping.* IEEE Transactions on Robotics, 32(6), 1309–1332. — Comprehensive SLAM survey; covers the full algorithmic landscape.
+
+**Yuan, W. et al. (2017).** *GelSight: High-Resolution Robot Tactile Sensors for Estimating Geometry and Force.* Sensors, 17(12), 2762. — GelSight vision-based tactile sensor; enabled a new generation of contact-rich manipulation research.
+
+**Gallego, G. et al. (2022).** *Event-Based Vision: A Survey.* IEEE TPAMI, 44(1), 154–180. — Comprehensive survey of neuromorphic event cameras and algorithms.
+
+</ResourceBox>
+
+## 8. Cogninoid build direction
+
+Robotics and sensors connect directly to every Cogninoid hardware build:
+
+- **Adeept ADA031 arm** — 6-DOF serial robot; forward/inverse kinematics in firmware; position control via PWM
+- **MPU-6050 IMU** — 6-axis accelerometer + gyroscope; orientation estimation; vibration monitoring
+- **HX711 load cell** — 24-bit ADC for force measurement; grasp force monitoring on robotic gripper
+- **PicoScope** — USB oscilloscope for signal acquisition and characterisation; calibration reference
+- **Serial bridge architecture** — Raspberry Pi (AI) ↔ Arduino (motor control) via serial; provides clean hardware abstraction
+
+## 9. Beginner project
+
+**IMU orientation display**:
+
+- **Hardware**: Arduino Uno or Raspberry Pi Pico, MPU-6050 IMU, USB cable
+- **Goal**: Read accelerometer and gyroscope data over I2C; compute roll and pitch angles using complementary filter; display on Serial Monitor or LCD in real-time
+- **Verification**: Tilt to known angles (0°, 45°, 90°); verify reported values match within ±3°; check that gyroscope drift is compensated by accelerometer correction
+
+## 10. Advanced project
+
+**Closed-loop force-controlled gripper**:
+
+- **Hardware**: Robotic arm, servo gripper, load cell (HX711), Arduino
+- **Goal**: Command the gripper to close until it detects a target force (e.g., 200g); hold that force; release on command. The force controller uses a PID loop with load cell feedback
+- **Verification**: Measure holding force vs. commanded force over 20 trials; demonstrate that the controller holds within ±10% of target; show it does not crush a soft object (a foam cube) that would be damaged by a position-only controller
+
+<OpenQuestionsBox>
+
+- What is the minimum sensor set (type, placement, sample rate) required for reliable dexterous manipulation of arbitrary everyday objects?
+- How do we build robust calibration protocols that work in uncontrolled field environments — not just laboratory conditions?
+- Can neuromorphic event cameras replace conventional cameras for high-speed manipulation, and what new algorithms are needed?
+- How do tactile sensors need to be redesigned to provide the information density required for in-hand reorientation?
+- What is the theoretical relationship between sensor bandwidth, control bandwidth, and achievable task performance?
+
+</OpenQuestionsBox>
+
+<NextStepBox title="Continue learning">
+  <NextStep href="/atlas/embodied-ai" label="Embodied AI" description="How sensors and actuators are integrated into learning systems" />
+  <NextStep href="/hardware/arduino" label="Arduino" description="The microcontroller that bridges sensors to computation" />
+  <NextStep href="/hardware/imu-sensor" label="IMU Sensor" description="Full guide to accelerometers, gyroscopes, and fusion algorithms" />
+  <NextStep href="/hardware/servo-motor" label="Servo Motor" description="The primary actuator in robotic arms — PWM control and specifications" />
+</NextStepBox>

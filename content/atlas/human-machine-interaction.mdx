@@ -1,0 +1,163 @@
+---
+title: "Human–Machine Interaction"
+description: "HMI studies how humans and intelligent systems communicate, collaborate, and share control — and how to design systems that remain legible, correctable, and trustworthy as AI capabilities grow."
+difficulty: intermediate
+order: 6
+tags: ["HMI", "HCI", "RLHF", "alignment", "feedback", "human-in-the-loop", "UI"]
+category: "Cogninoid Atlas"
+---
+
+<LearningObjectives>
+- Why interaction design is inseparable from AI system design
+- How reinforcement learning from human feedback (RLHF) works and why it matters
+- The key HMI primitives: feedback, correction, oversight, collaboration
+- What "alignment" means in practice — not just philosophy
+- How to design systems that make AI behaviour legible and correctable
+</LearningObjectives>
+
+## 1. What is Human–Machine Interaction?
+
+Human–Machine Interaction (HMI) studies the interfaces, feedback loops, and protocols through which humans and machines communicate, share information, and coordinate action. In the context of AI systems, HMI is not just about visual interfaces — it is about designing the entire loop: how humans convey intent, how systems communicate uncertainty, how errors are caught, and how control is shared.
+
+As AI systems become capable of longer autonomous operation, the design of human oversight mechanisms becomes a safety-critical engineering problem, not just a user experience problem.
+
+<MentalModelBox title="The human is part of the system, not just its user">
+Traditional software design treats humans as external: they provide inputs, the system produces outputs. AI system design recognises that humans are internal to the feedback loop: they provide preferences, corrections, approvals, and goals. The system's behaviour is shaped by human feedback at training time and at deployment time. Removing humans from this loop does not remove their influence — it just makes it less legible.
+</MentalModelBox>
+
+## 2. Why it matters
+
+AI systems fail in specific ways that are hard to detect from inside the system:
+
+- **Specification gaming** — optimising a proxy metric rather than the actual goal
+- **Distributional shift** — performing well on training data but failing on deployment inputs
+- **Overconfidence** — expressing high confidence in wrong outputs
+- **Silent failure** — producing plausible but incorrect outputs without warning
+
+Human oversight is the primary detection and correction mechanism for all of these failures. The key research question is: how do we design oversight that is efficient, scalable, and meaningful — not just a checkbox?
+
+## 3. Fundamental building blocks
+
+**Feedback loops**: The mechanism by which human judgement updates system behaviour. Can be explicit (thumbs up/down, corrections, preference labels) or implicit (time spent, click-through, re-reading behaviour).
+
+**Reinforcement Learning from Human Feedback (RLHF)**: Christiano et al. (2017) introduced the core framework:
+1. Collect human preference labels on pairs of outputs
+2. Train a reward model to predict human preference
+3. Fine-tune the language model using PPO (proximal policy optimisation) against the reward model
+
+This is the training recipe behind InstructGPT (Ouyang et al., 2022) and the alignment fine-tuning of all modern instruction-following LLMs.
+
+**Human-in-the-loop learning**: Amershi et al. (2014) formalised interactive machine learning — iterative cycles of model training, human feedback, and model update. The key insight is that human feedback is a scarce resource: the interaction design should minimise burden while maximising information.
+
+**Legibility and explainability**: A system is legible if a human can understand why it produced a given output. This is distinct from explainability (post-hoc rationalisation) — legibility is a property of how the system communicates during operation. Chain-of-thought reasoning is a legibility mechanism.
+
+**Oversight mechanisms**:
+- *Pre-action approval*: human approves before irreversible actions
+- *Anomaly flagging*: system flags uncertainty and requests review
+- *Audit logging*: all actions recorded with rationale for later review
+- *Graceful handoff*: when confidence is low, system transfers control to human
+
+## 4. Key scientific questions
+
+- At what scale of AI capability does human feedback become the bottleneck for alignment?
+- How do we design oversight mechanisms that do not require the human to understand the full output — scalable oversight (Bowman et al., 2022)?
+- What is the correct model of human preferences — consistent utility functions, or context-dependent, time-varying preferences?
+- How should AI systems communicate uncertainty to non-expert users in ways that improve decisions rather than confuse them?
+- When does assistance become automation, and what are the cognitive and safety consequences?
+
+## 5. Current research frontier
+
+<ResearchFrontierBlock>
+
+**RLHF and constitutional AI** — Ouyang et al. (2022) established RLHF as the alignment training recipe; Bai et al. (2022) introduced Constitutional AI (CAI), replacing human preference labellers with AI-generated critiques guided by a written constitution. This scales oversight beyond human annotation bandwidth.
+
+**Scalable oversight** — Bowman et al. (2022) introduced the problem formally: how do we verify AI outputs when tasks are too complex for humans to evaluate directly? Debate (Irving et al., 2018) proposed having AI systems argue opposing positions for human adjudication. Recursive reward modelling decomposes complex tasks into verifiable sub-tasks.
+
+**Direct Preference Optimisation (DPO)** — Rafailov et al. (2023) showed that RLHF can be reformulated as a supervised classification problem without the reward model and PPO, simplifying the training pipeline significantly.
+
+**Interpretability** — Anthropic's mechanistic interpretability work (Olah et al., 2020 onwards) attempts to decode the actual computations inside transformer networks. Features corresponding to human-interpretable concepts have been found; circuits implementing specific behaviours have been identified. This is the foundation for internal legibility.
+
+**Human-robot interaction** — Dragan & Srinivasa (2013) formalised legibility in robot motion planning: motions that make intent clear to observers, even at the cost of some efficiency. This is applied in collaborative robot arms that telegraph their next action before executing.
+
+**Adaptive automation** — Research on level-of-automation selection (Sheridan & Verplank, 1978 extended by modern work) studies how to dynamically allocate tasks between human and machine based on real-time load, confidence, and criticality.
+
+</ResearchFrontierBlock>
+
+## 6. Practical workflow
+
+Designing for effective HMI in AI-powered systems:
+
+1. **Map the failure modes** — what can go wrong, and would a human notice?
+2. **Design feedback surfaces** — where does the human provide signal? Make it low-friction
+3. **Make uncertainty visible** — the system should communicate confidence, not just output
+4. **Build approval gates** — irreversible actions require explicit human confirmation
+5. **Log everything** — every action, every confidence score, every correction
+6. **Measure oversight quality** — are human corrections improving system behaviour?
+
+<ScientificThinkingBox>
+HMI design is empirical work: you cannot design good oversight in advance without knowing how humans actually interact with the system. Run structured user studies. Measure task completion, error rate, time-on-task, and — critically — the number and type of human corrections. The goal is not to minimise human involvement; it is to maximise the value of human involvement per unit of human attention.
+</ScientificThinkingBox>
+
+## 7. Key references
+
+<ResourceBox>
+
+**Norman, D.A. (2013).** *The Design of Everyday Things* (revised ed.). Basic Books. — Foundational HCI principles: affordances, feedback, mapping, and error prevention. The conceptual vocabulary for any HMI design discussion.
+
+**Christiano, P.F. et al. (2017).** *Deep Reinforcement Learning from Human Preferences.* NeurIPS 2017. arXiv:1706.03741. — Introduced RLHF; the training recipe for modern aligned LLMs.
+
+**Ouyang, L. et al. (2022).** *Training language models to follow instructions with human feedback.* NeurIPS 2022. arXiv:2203.02155. — InstructGPT: RLHF applied to GPT-3; produced the first model that reliably followed human instructions.
+
+**Amershi, S. et al. (2014).** *Power to the People: The Role of Humans in Interactive Machine Learning.* AI Magazine, 35(4). — Framework for human-in-the-loop learning; identifies key design principles.
+
+**Bowman, S.R. et al. (2022).** *Measuring Progress on Scalable Oversight for Large Language Models.* arXiv:2211.03540. — Formalises scalable oversight; QuALITY benchmark for complex reasoning oversight.
+
+**Bai, Y. et al. (2022).** *Constitutional AI: Harmlessness from AI Feedback.* arXiv:2212.08073. — CAI: replacing human preference labels with AI-generated critiques guided by principles.
+
+**Rafailov, R. et al. (2023).** *Direct Preference Optimisation: Your Language Model is Secretly a Reward Model.* NeurIPS 2023. — DPO: simplified RLHF without reward model; widely adopted.
+
+**Shneiderman, B. (2020).** *Human-Centered AI.* Issues in Science and Technology. — Argues for AI that augments human capability and maintains human oversight, against full automation.
+
+</ResourceBox>
+
+## 8. Cogninoid build direction
+
+HMI principles are embedded in Cogninoid's engineering approach:
+
+- **Human approval gates** — every irreversible agentic action requires explicit human confirmation
+- **Reasoning traces** — all AI outputs include chain-of-thought for legibility
+- **Correction logging** — every human correction is stored and used to improve prompts
+- **Physical HMI** — robotic systems telegraph intent before acting; humans can interrupt at any point
+- **Dashboard-first** — every AI pipeline has a monitoring dashboard before it has a deployment plan
+
+## 9. Beginner project
+
+**AI assistant with correction logging**:
+
+- **Tools**: Claude API, SQLite or JSON file for logging
+- **Goal**: Build a coding assistant that shows its reasoning; the user can mark any step as wrong; the system logs the correction; after 10 interactions, generate a report of common failure patterns
+- **Verification**: The log correctly captures all corrections; the failure report accurately summarises the patterns
+
+## 10. Advanced project
+
+**Adaptive human-robot task allocation**:
+
+- **Hardware**: Robotic arm, force sensor, camera
+- **Goal**: Build a system that monitors robot confidence (via a neural network confidence score on its current task); when confidence drops below a threshold, the robot pauses and asks the human to demonstrate the next step; the demonstration is recorded and added to the training set
+- **Verification**: After 5 demonstrations, the robot completes the task without intervention at a higher rate than before
+
+<OpenQuestionsBox>
+
+- Can human feedback remain a reliable training signal as AI systems become capable enough to produce outputs that humans cannot fully evaluate?
+- How should oversight be distributed across many humans — whose preferences should dominate, and how do we handle disagreement?
+- What is the correct mental model for users of AI systems that are partially correct — how should uncertainty be communicated to avoid both over-trust and under-trust?
+- How does automation affect human skill maintenance — and what is the optimal human-machine task allocation for long-term human capability preservation?
+- Can we formally specify the properties an AI system must have for a given level of human oversight to be sufficient?
+
+</OpenQuestionsBox>
+
+<NextStepBox title="Continue learning">
+  <NextStep href="/atlas/agentic-systems" label="Agentic Systems" description="How agents and humans share control of multi-step workflows" />
+  <NextStep href="/atlas/embodied-ai" label="Embodied AI" description="Physical HMI in robotic systems and collaborative manipulation" />
+  <NextStep href="/atlas/toward-general-intelligence" label="Toward General Intelligence" description="Why alignment and oversight are central to safe capable AI" />
+</NextStepBox>

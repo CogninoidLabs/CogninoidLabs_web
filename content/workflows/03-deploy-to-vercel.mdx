@@ -122,7 +122,7 @@ Go to your Vercel project dashboard. You should see a new deployment starting. W
 - **`node_modules` in the repo** — this slows builds and causes cache issues. Make sure `.gitignore` excludes it
 </CommonMistakeBox>
 
-<NextStepBox steps={[
-  { label: "Connect a Hostinger domain to Vercel", href: "/workflows/04-connect-domain", description: "Use your custom domain" },
-  { label: "Add Google Search Console and sitemap", href: "/workflows/05-search-console-sitemap", description: "Make your site findable on Google" }
-]} />
+<NextStepBox>
+  <NextStep href="/workflows/04-connect-domain" label="Connect a domain to Vercel" description="Use your custom domain" />
+  <NextStep href="/workflows/05-search-console-sitemap" label="Add Google Search Console and sitemap" description="Make your site findable on Google" />
+</NextStepBox>

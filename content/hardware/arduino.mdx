@@ -34,38 +34,32 @@ The microcontroller reads digital and analogue signals on its input pins and dri
 
 ## Important parameters (Arduino Uno R3)
 
-<SpecTable
-  title="Arduino Uno R3 Specifications"
-  rows={[
-    { parameter: "Microcontroller", value: "ATmega328P", notes: "8-bit AVR" },
-    { parameter: "Operating voltage", value: "5V", notes: "" },
-    { parameter: "Digital I/O pins", value: "14", notes: "6 with PWM output" },
-    { parameter: "Analogue input pins", value: "6", notes: "10-bit resolution" },
-    { parameter: "Flash memory", value: "32 KB", notes: "0.5 KB used by bootloader" },
-    { parameter: "SRAM", value: "2 KB", notes: "" },
-    { parameter: "Clock speed", value: "16 MHz", notes: "" },
-    { parameter: "USB connection", value: "Type B", notes: "For programming and serial" },
-    { parameter: "DC current per I/O pin", value: "40 mA", notes: "Max — use resistors with LEDs" },
-  ]}
-/>
+<SpecTable title="Arduino Uno R3 Specifications">
+  <SpecRow parameter="Microcontroller" value="ATmega328P" notes="8-bit AVR" />
+  <SpecRow parameter="Operating voltage" value="5V" notes="Regulated" />
+  <SpecRow parameter="Digital I/O pins" value="14" notes="6 with PWM output" />
+  <SpecRow parameter="Analogue input pins" value="6" notes="10-bit resolution" />
+  <SpecRow parameter="Flash memory" value="32 KB" notes="0.5 KB used by bootloader" />
+  <SpecRow parameter="SRAM" value="2 KB" notes="Runtime memory" />
+  <SpecRow parameter="Clock speed" value="16 MHz" notes="Crystal oscillator" />
+  <SpecRow parameter="USB connection" value="Type B" notes="For programming and serial" />
+  <SpecRow parameter="DC current per I/O pin" value="40 mA" notes="Max — use resistors with LEDs" />
+</SpecTable>
 
 ## Pinout overview
 
-<PinoutBox
-  title="Arduino Uno Key Pins"
-  pins={[
-    { pin: "5V",   label: "5V",    type: "power",         description: "5V regulated output — powers sensors" },
-    { pin: "3.3V", label: "3.3V",  type: "power",         description: "3.3V output — 50 mA max" },
-    { pin: "GND",  label: "GND",   type: "ground",        description: "Ground reference — multiple pins available" },
-    { pin: 0,      label: "RX",    type: "communication", description: "Serial receive — used for USB programming" },
-    { pin: 1,      label: "TX",    type: "communication", description: "Serial transmit" },
-    { pin: "2–13", label: "D2–D13",type: "digital",       description: "Digital input/output — HIGH or LOW" },
-    { pin: "3,5,6,9,10,11", label: "PWM", type: "analog", description: "PWM output — use analogWrite() for motors, LEDs" },
-    { pin: "A0–A5",label: "A0–A5", type: "analog",        description: "Analogue input — reads 0–5V as 0–1023" },
-    { pin: "A4",   label: "SDA",   type: "communication", description: "I2C data" },
-    { pin: "A5",   label: "SCL",   type: "communication", description: "I2C clock" },
-  ]}
-/>
+<PinoutBox title="Arduino Uno Key Pins">
+  <PinRow pin="5V" label="5V" type="power" description="5V regulated output — powers sensors" />
+  <PinRow pin="3.3V" label="3.3V" type="power" description="3.3V output — 50 mA max" />
+  <PinRow pin="GND" label="GND" type="ground" description="Ground reference — multiple pins available" />
+  <PinRow pin="0" label="RX" type="communication" description="Serial receive — used for USB programming" />
+  <PinRow pin="1" label="TX" type="communication" description="Serial transmit" />
+  <PinRow pin="2–13" label="D2–D13" type="digital" description="Digital input/output — HIGH or LOW" />
+  <PinRow pin="3,5,6,9,10,11" label="PWM" type="analog" description="PWM output — analogWrite() for motors, LEDs" />
+  <PinRow pin="A0–A5" label="A0–A5" type="analog" description="Analogue input — reads 0–5V as 0–1023" />
+  <PinRow pin="A4" label="SDA" type="communication" description="I2C data" />
+  <PinRow pin="A5" label="SCL" type="communication" description="I2C clock" />
+</PinoutBox>
 
 ## Basic example code
 
@@ -151,8 +145,8 @@ Components: Arduino Uno, 2-axis joystick module, 2× servo motors, breadboard.
 
 Goal: Joystick X-axis controls one servo, Y-axis controls the other. Smooth, proportional control using `map()` to convert 0–1023 to 0–180 degrees.
 
-<NextStepBox steps={[
-  { label: "ESP32", href: "/hardware/esp32", description: "More powerful microcontroller with Wi-Fi and Bluetooth" },
-  { label: "Servo Motor", href: "/hardware/servo-motor", description: "The actuator you will control with Arduino" },
-  { label: "Motor Driver", href: "/hardware/motor-driver", description: "How to drive DC motors safely" }
-]} />
+<NextStepBox>
+  <NextStep href="/hardware/esp32" label="ESP32" description="More powerful microcontroller with Wi-Fi and Bluetooth" />
+  <NextStep href="/hardware/servo-motor" label="Servo Motor" description="The actuator you will control with Arduino" />
+  <NextStep href="/hardware/motor-driver" label="Motor Driver" description="How to drive DC motors safely" />
+</NextStepBox>

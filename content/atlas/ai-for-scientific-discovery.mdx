@@ -1,0 +1,161 @@
+---
+title: "AI for Scientific Discovery"
+description: "AI for scientific discovery applies machine learning to accelerate hypothesis generation, experimental design, and knowledge extraction across biology, chemistry, materials science, and physics."
+difficulty: advanced
+order: 7
+tags: ["scientific AI", "AlphaFold", "materials discovery", "drug discovery", "foundation models"]
+category: "Cogninoid Atlas"
+---
+
+<LearningObjectives>
+- How AlphaFold2 changed structural biology — and what it actually did and did not solve
+- The paradigm of AI-guided experiment design: active learning and Bayesian optimisation
+- How foundation models are being adapted to molecular, materials, and physical sciences
+- The inverse design problem: generating candidates with target properties
+- How to critically evaluate "AI discovers X" claims in scientific literature
+</LearningObjectives>
+
+## 1. What is AI for Scientific Discovery?
+
+Scientific discovery is the process of generating hypotheses, designing experiments to test them, collecting data, and revising understanding. Traditionally, this process is limited by human cognitive bandwidth — the number of hypotheses a scientist can consider, experiments that can be designed, and papers that can be read.
+
+AI for scientific discovery aims to expand this bandwidth by:
+- **Prediction** — predicting properties of candidates before synthesis or experiment
+- **Generation** — proposing novel candidates with desired properties (inverse design)
+- **Planning** — designing experimental sequences that maximise information gain
+- **Extraction** — reading literature at machine scale and structuring knowledge
+
+This is not a replacement for scientific thinking — it is an amplifier that shifts where scientists spend their time.
+
+<MentalModelBox title="AI accelerates the hypothesis-experiment-revision loop">
+A scientist traditionally spends months: generate hypothesis → design experiment → synthesise sample → characterise → interpret → revise. AI compresses this: predict property without synthesis → filter to promising candidates → design targeted experiment → interpret result automatically → propose next experiment. The scientist's role shifts from executing the loop to designing the loop and verifying its outputs.
+</MentalModelBox>
+
+## 2. Why it matters
+
+The search space of possible molecules, materials, and experimental conditions is astronomically large. Chemical space alone is estimated at 10^60 drug-like molecules. Classical high-throughput screening can test thousands per year. ML-guided search can focus attention on the most promising region of this space, reducing experimental burden by orders of magnitude.
+
+Recent high-profile results:
+- **AlphaFold2** (2021) — protein structure prediction at near-experimental accuracy
+- **GNoME** (2023) — discovered 2.2 million new stable inorganic crystals via ML-guided DFT
+- **Stokes et al.** (2020) — discovered a novel antibiotic (halicin) by screening 61,000 compounds with a graph neural network
+- **Davies et al.** (2021) — AI guided discovery of new conjectures in knot theory and representation theory (Nature)
+
+## 3. Fundamental building blocks
+
+**Representation learning for molecules and materials**: Molecules can be represented as SMILES strings, molecular graphs, 3D point clouds, or electronic density fields. Materials can be represented as crystal graphs, composition vectors, or wyckoff position encodings. The choice of representation determines what the model can learn.
+
+**Property prediction (forward problem)**: Given a structure, predict a property (band gap, solubility, binding affinity, formation energy). Graph neural networks (GNNs) like CGCNN, MEGNet, and MACE achieve near-DFT accuracy for formation energies and mechanical properties.
+
+**Inverse design (backward problem)**: Given a target property, generate a structure that achieves it. This is harder — the forward mapping is many-to-many, and the output must be chemically valid. Approaches include: constrained optimisation in latent space (VAE/GAN), reinforcement learning over molecular graphs, diffusion models (DiffSBDD, Crystalformer), and language model-based generation (SMILES/IUPAC).
+
+**Active learning and Bayesian optimisation**: Do not evaluate all candidates — intelligently select the next experiment to maximise information gain. Gaussian processes provide uncertainty estimates; acquisition functions (Expected Improvement, UCB) balance exploration and exploitation. This is the framework behind Bayesian optimisation-guided synthesis campaigns.
+
+**Foundation models for science**: Models pretrained on large scientific corpora — chemistry literature (Galactica), protein sequences (ESM-2), crystal structures (CrystalBERT, GNoME) — that transfer to downstream property prediction with less fine-tuning data.
+
+<SignalFlowDiagram title="AI-Guided Discovery Loop">
+  <FlowNode label="Candidate space" sublabel="Crystal / molecule / protein" color="cyan" />
+  <FlowNode label="ML prediction" sublabel="Property, stability" color="blue" />
+  <FlowNode label="Acquisition" sublabel="Select next experiment" color="violet" />
+  <FlowNode label="Experiment" sublabel="DFT / synthesis / assay" color="amber" />
+  <FlowNode label="Update model" sublabel="Bayesian update" color="green" />
+</SignalFlowDiagram>
+
+## 4. Key scientific questions
+
+- How do we evaluate whether an AI system is doing genuine scientific reasoning versus pattern-matching to training data?
+- What is the correct uncertainty quantification for ML predictions used in experimental planning?
+- How do we handle distribution shift: ML trained on known compounds predicting properties of genuinely novel structures?
+- When ML proposes a novel candidate, what is the correct experimental validation workflow?
+- How do we prevent AI-guided discovery from amplifying biases in existing scientific literature and databases?
+
+## 5. Current research frontier
+
+<ResearchFrontierBlock>
+
+**AlphaFold2 and structural biology** — Jumper et al. (2021) solved the 50-year protein folding problem at near-crystallographic accuracy using MSA + Evoformer + structure module. The AlphaFold Protein Structure Database now contains structures for virtually all known proteins. AlphaFold3 (2024) extended this to protein-DNA, protein-RNA, and protein-small molecule complexes — critical for drug design.
+
+**GNoME and materials discovery** — Merchant et al. (2023) used a graph neural network trained on Materials Project DFT data to screen 32 million candidate crystal structures, predicting 2.2 million stable new materials (previously ~48,000 were known). 736 have been experimentally verified. This is the largest single expansion of known stable inorganic materials.
+
+**MACE and equivariant force fields** — Batatia et al. (2022) introduced MACE, an equivariant message-passing network for atomic force fields. MACE-MP-0 is a universal potential trained on Materials Project; it achieves near-DFT accuracy for atomic forces across the periodic table at 10⁶× lower computational cost than DFT.
+
+**Stokes et al. antibiotic discovery** — A graph neural network trained on 2,335 compounds with known activity against E. coli identified halicin, a compound structurally dissimilar to all known antibiotics, from a library of 61,000 compounds. Halicin showed broad-spectrum activity including against drug-resistant pathogens.
+
+**Scientific LLMs** — Galactica (Taylor et al., 2022) was trained on 48M scientific papers, textbooks, and databases. Although withdrawn due to hallucination concerns, it demonstrated that scientific knowledge has structure that LLMs can learn. GPT-4 and Gemini show strong performance on chemistry and biology reasoning benchmarks.
+
+**Autonomous labs** — Abolhasani & Kumacheva (2023) review self-driving labs: robotic systems combining ML-guided experiment selection with automated synthesis and characterisation. Aspuru-Guzik's Acceleration Consortium and IBM RoboRXN are prominent examples.
+
+</ResearchFrontierBlock>
+
+## 6. Practical workflow
+
+Building a minimal AI-guided scientific discovery pipeline:
+
+1. **Define the property of interest** — what are you optimising? Make it measurable and quantitative
+2. **Collect a training dataset** — known (structure, property) pairs from literature, databases (Materials Project, PubChem, ChEMBL), or your own experiments
+3. **Choose a representation** — molecular fingerprints (Morgan), SMILES, graph-based
+4. **Train a forward model** — property prediction; validate with cross-validation; report uncertainty
+5. **Implement acquisition function** — Expected Improvement or UCB over the forward model predictions
+6. **Run an active learning cycle** — propose candidates, score with ML, select top candidates, evaluate (in silico or in vitro), update model
+7. **Verify** — does the final candidate actually have the target property?
+
+## 7. Key references
+
+<ResourceBox>
+
+**Jumper, J. et al. (2021).** *Highly accurate protein structure prediction with AlphaFold.* Nature, 596, 583–589. — Solved the protein folding problem; Helix Award equivalent; triggered a paradigm shift in structural biology.
+
+**Merchant, A. et al. (2023).** *Scaling deep learning for materials discovery.* Nature, 624, 80–85. — GNoME: 2.2 million new stable inorganic materials discovered by ML-guided DFT screening.
+
+**Stokes, J.M. et al. (2020).** *A Deep Learning Approach to Antibiotic Discovery.* Cell, 180(4), 688–702. — GNN-guided discovery of halicin from 61,000-compound library; first ML-discovered antibiotic.
+
+**Batatia, I. et al. (2022).** *MACE: Higher Order Equivariant Message Passing Neural Networks for Fast and Accurate Force Fields.* NeurIPS 2022. — Universal equivariant force field; near-DFT accuracy at 10⁶× lower cost.
+
+**Davies, A. et al. (2021).** *Advancing mathematics by guiding human intuition with AI.* Nature, 600, 70–74. — AI-assisted discovery of new mathematical conjectures in knot theory and representation theory.
+
+**Szymanski, N.J. et al. (2023).** *An autonomous laboratory for the accelerated synthesis of novel materials.* Nature, 624, 86–91. — Self-driving lab for inorganic synthesis; closed-loop synthesis verification.
+
+**Wang, Z. et al. (2023).** *Scientific discovery in the age of artificial intelligence.* Nature, 620, 47–60. — Comprehensive review of AI for discovery across biology, chemistry, materials, and physics.
+
+</ResourceBox>
+
+## 8. Cogninoid build direction
+
+AI for scientific discovery is at the core of Cogninoid's MEIDNet work:
+
+- **MEIDNet** — multimodal neural network for MXene electronic property prediction and inverse design
+- **Alignment model** — band gap alignment across diverse MXene compositions and surface chemistries
+- **Inverse design campaigns** — Bayesian optimisation over the MXene composition space targeting specific electronic properties
+- **DFT verification pipeline** — ML candidates verified by DFT calculations; experiment proposals for high-confidence candidates
+
+## 9. Beginner project
+
+**Molecular property prediction with Morgan fingerprints**:
+
+- **Tools**: RDKit, scikit-learn, ChEMBL or Tox21 dataset
+- **Goal**: Train a random forest or gradient boosting model to predict aqueous solubility (logS) from SMILES strings using Morgan fingerprints
+- **Verification**: Report R² and RMSE on held-out test set; plot predicted vs. actual; identify the 5 largest prediction errors and examine their structures
+
+## 10. Advanced project
+
+**Bayesian optimisation for property-targeted molecule generation**:
+
+- **Tools**: RDKit, GPyTorch, BOTorch or Ax (Meta Bayesian optimisation platform), REINVENT or Guacamol for molecular generation
+- **Goal**: Define a target property (e.g., predicted logP between 2 and 3, predicted QED > 0.7). Use a GP surrogate model to select candidates from a virtual library; evaluate; update; repeat for 5 cycles. Compare with random search
+- **Verification**: Plot the property values across BO cycles vs. random search; demonstrate that BO finds higher-quality candidates with fewer evaluations
+
+<OpenQuestionsBox>
+
+- How do we rigorously distinguish AI-guided discovery from AI-accelerated database retrieval?
+- What is the correct framework for uncertainty quantification in ML models trained on small scientific datasets with systematic biases?
+- When ML proposes a structurally novel candidate outside the training distribution, what is its prediction reliability — and how do we communicate this to experimentalists?
+- How do we prevent autonomous labs from optimising proxy metrics rather than true scientific goals?
+- What is the long-term effect of AI-guided discovery on scientific diversity — if all labs use the same models, do they converge on the same candidates?
+
+</OpenQuestionsBox>
+
+<NextStepBox title="Continue learning">
+  <NextStep href="/atlas/multimodal-intelligence" label="Multimodal Intelligence" description="Aligning spectra, structures, and properties in a shared representation" />
+  <NextStep href="/atlas/quantum-computing" label="Quantum Computing" description="Quantum simulation as a verification tool for ML-predicted structures" />
+  <NextStep href="/atlas/agentic-systems" label="Agentic Systems" description="Autonomous agents for closed-loop scientific experimentation" />
+</NextStepBox>

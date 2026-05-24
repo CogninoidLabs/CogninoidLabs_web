@@ -1,97 +1,165 @@
 ---
 title: "Embodied AI"
-description: "Embodied AI is the study and engineering of AI systems that exist in and interact with the physical world through sensors, actuators, and real-time feedback loops — not just through text or pixels."
+description: "Embodied AI studies intelligence that exists in and interacts with the physical world through sensors, actuators, and real-time feedback — not just text or pixels."
 difficulty: intermediate
-order: 4
-tags: ["robotics", "AI", "sensors", "control", "learning"]
+order: 1
+tags: ["robotics", "AI", "sensors", "control", "learning", "perception"]
 category: "Cogninoid Atlas"
 ---
 
-Embodied AI refers to artificial intelligence systems that are grounded in physical reality. Unlike language models that process text, embodied AI systems receive sensory input from the real world and produce actions that change the physical environment.
+<LearningObjectives>
+- What embodied AI means and why it differs from disembodied AI
+- The sense-plan-act loop and why feedback is the core primitive
+- Key scientific questions driving robot learning research
+- The research frontier: vision-language-action models and dexterous manipulation
+- How to build a first closed-loop robotic system
+</LearningObjectives>
 
-<MentalModelBox title="Intelligence requires a body to become useful">
-A chess engine is intelligent about chess but cannot make you coffee. An embodied AI system perceives its environment (camera, lidar, force sensors), reasons about what to do, and acts (motor commands, gripper forces, locomotion). The loop is: sense → model → plan → act → sense again. The physical world is the test.
+## 1. What is Embodied AI?
+
+Embodied AI refers to artificial intelligence systems grounded in physical reality. Unlike language models that process text and produce text, embodied AI systems receive sensory input from the real world — cameras, force sensors, IMUs, lidar — and produce actions that change the physical environment through motors, grippers, or locomotion.
+
+The defining feature is the **feedback loop**: the system acts, the world changes, the sensors update, the system adapts. There is no stopping point, no single correct answer, no finite input buffer. The physical world is the test environment.
+
+<MentalModelBox title="Intelligence becomes useful when it has a body to act through">
+A chess engine plays perfect chess but cannot make you coffee. An embodied AI system perceives its environment, reasons about what to do, acts through motors and grippers, and receives feedback from the physical outcome. The loop is: **sense → model → plan → act → sense again**. The physical world is both the input source and the evaluation ground.
 </MentalModelBox>
 
-## Why it matters
+## 2. Why it matters
 
-Most deployed AI today is disembodied — it reads text and writes text. But the majority of valuable work in the physical world (manufacturing, logistics, healthcare, scientific experimentation) requires machines that can manipulate objects, navigate spaces, and respond to unpredictable physical conditions.
+Most deployed AI today is disembodied — it reads and writes text, classifies images, or generates audio. But the majority of valuable work in the physical world requires machines that can manipulate objects, navigate spaces, and respond to unpredictable physical conditions.
 
-Embodied AI is the bridge between digital reasoning and physical capability.
+Embodied AI is the bridge between digital reasoning and physical capability. It is relevant to:
 
-## Fundamental building blocks
+- **Manufacturing and logistics** — robotic arms on assembly lines, autonomous warehouses
+- **Healthcare** — surgical robots, assistive devices, rehabilitation systems
+- **Scientific experimentation** — lab automation, closed-loop materials discovery, autonomous microscopy
+- **Personal robotics** — household assistants, elder care, physical-cognitive collaboration
 
-<SignalFlowDiagram
-  title="Embodied AI Signal Loop"
-  nodes={[
-    { label: "Sensors", sublabel: "Camera, IMU, Force", color: "cyan" },
-    { label: "Perception", sublabel: "Object detection, state estimation", color: "blue" },
-    { label: "Planning", sublabel: "What to do next", color: "violet" },
-    { label: "Control", sublabel: "Motor commands", color: "blue" },
-    { label: "Actuators", sublabel: "Motors, grippers", color: "cyan" },
-    { label: "Environment", sublabel: "Physical world", color: "green" }
-  ]}
-/>
+## 3. Fundamental building blocks
 
-**Perception** — extracting meaningful information from raw sensor data. Knowing where objects are, what they are, and how fast they are moving.
+<SignalFlowDiagram title="The Embodied AI Sense-Act Loop">
+  <FlowNode label="Sensors" sublabel="Camera, IMU, Force" color="cyan" />
+  <FlowNode label="Perception" sublabel="Object detection, pose estimation" color="blue" />
+  <FlowNode label="State Estimation" sublabel="SLAM, proprioception" color="violet" />
+  <FlowNode label="Planning" sublabel="What to do next" color="blue" />
+  <FlowNode label="Control" sublabel="Motor commands" color="cyan" />
+  <FlowNode label="Actuators" sublabel="Motors, grippers" color="green" />
+</SignalFlowDiagram>
 
-**State estimation** — maintaining a model of the world and the robot's own position within it (SLAM — simultaneous localisation and mapping).
+**Perception** — extracting meaningful information from raw sensor data. Knowing where objects are, what they are, and how they are oriented.
 
-**Planning** — deciding what sequence of actions will achieve the goal. Can be rule-based, optimisation-based, or learned.
+**State estimation** — maintaining a model of the world and the robot's own position within it. SLAM (simultaneous localisation and mapping) is the central technique.
 
-**Control** — executing planned movements through motor commands, accounting for physical dynamics, friction, and disturbances.
+**Planning** — deciding what sequence of actions will achieve a goal. Can be rule-based, optimisation-based, or learned from data.
 
-**Learning** — improving behaviour from experience. Reinforcement learning from physical interaction. Imitation learning from demonstrations.
+**Control** — executing planned movements through motor commands, accounting for physical dynamics, friction, delays, and environmental disturbances.
 
-## Key scientific questions
+**Learning** — improving behaviour from experience. Reinforcement learning from physical interaction, imitation learning from demonstrations, or self-supervised learning from video.
 
-- How do robots learn to generalise manipulation skills across different objects?
-- How can a robot recover from unexpected failures in real time?
-- What representations allow efficient transfer of skills across different robot bodies?
-- How much of human embodied intelligence can be learned from video demonstration alone?
-- How do we make robots safe to work alongside humans?
+## 4. Key scientific questions
+
+- How do robots generalise manipulation skills to previously unseen objects and surfaces?
+- What representations allow efficient transfer of learned skills across different robot morphologies?
+- How much of physical intelligence can be learned from video demonstrations alone, without physical interaction?
+- How should robots represent and reason about uncertainty in perception and actuator execution?
+- What is the minimum amount of real-world data needed to achieve reliable task performance?
+- How do we make robots safe to work alongside humans, especially during failures?
+
+## 5. Current research frontier
 
 <ResearchFrontierBlock>
 
-Current frontier research directions in Embodied AI:
+**Vision-language-action models (VLA)** — RT-2 (Brohan et al., 2023) and π₀ (Black et al., 2024) treat robot control as a sequence prediction problem. They train on internet-scale vision-language data combined with robot demonstration data, and produce motor commands conditioned on language instructions and camera observations. This enables unprecedented generalisation but requires enormous data and compute.
 
-- **Foundation models for robotics** — models like RT-2 and π₀ that connect vision, language, and motor control in a single network trained on internet-scale data
-- **Dexterous manipulation** — five-fingered hands that can handle arbitrary objects, not just fixed tool-specific grippers
-- **Sim-to-real transfer** — training in simulation and deploying on real hardware with minimal degradation
-- **In-context skill learning** — robots that learn new skills from a few demonstrations at test time, without full retraining
-- **Whole-body control** — coordinating arms, torso, and legs as a unified system
+**Dexterous manipulation** — Five-fingered hands (Dexterous Hand, Shadow Hand, Allegro) that can handle arbitrary objects remain unsolved. DAPG (Rajeswaran et al., 2017) and more recent diffusion policy methods have shown progress. The difficulty is contact-rich physics: tiny changes in finger placement produce radically different grasps.
+
+**Diffusion policies** — Chi et al. (2023) showed that treating robot action as a denoising diffusion process produces smooth, multi-modal policies that handle ambiguous situations. This is now a widely adopted architecture for imitation learning.
+
+**Sim-to-real transfer** — Training in simulation (IsaacGym, MuJoCo, Genesis) and deploying on real hardware. Domain randomisation (Tobin et al., 2017) is the main technique, but significant gaps remain for contact-rich tasks.
+
+**Foundation models for robotics** — Single models trained across many robot platforms and tasks, analogous to LLMs in NLP. Octo (2024), OpenVLA (2024), and GR00T (2024) are early instantiations.
+
+**Whole-body control** — Coordinating arms, torso, and legs as a unified system for loco-manipulation. Figure 01, Boston Dynamics Atlas, and Unitree G1 are current hardware platforms.
 
 </ResearchFrontierBlock>
 
-## Cogninoid build direction
+## 6. Practical workflow
+
+To build a minimal embodied AI system:
+
+1. **Choose a platform** — robotic arm (Adeept, Interbotix, Kinova), mobile base (TurtleBot, Husarion), or custom
+2. **Instrument the environment** — cameras, force-torque sensors, encoders
+3. **Implement perception** — object detection (YOLOv8, Grounding DINO), pose estimation
+4. **Implement control** — PID, impedance control, or learned policy
+5. **Close the loop** — verify the robot achieved the goal using sensors, not assumption
+6. **Iterate from failure** — log every failure, instrument the sensor that would have detected it
+
+<EngineeringMindsetBox>
+The most common mistake in embodied AI is assuming open-loop commands will work reliably. They will not. Build feedback from day one: check whether the robot actually reached the target position, whether the grasp succeeded, whether the force sensor registered contact. If you cannot verify it happened, it did not happen.
+</EngineeringMindsetBox>
+
+## 7. Key references
+
+<ResourceBox>
+
+**Brooks, R.A. (1991).** *Intelligence without representation.* Artificial Intelligence, 47(1–3), 139–159. — The founding argument that intelligence emerges from physical grounding, not symbol manipulation.
+
+**Pfeifer, R. & Bongard, J. (2006).** *How the Body Shapes the Way We Think.* MIT Press. — Comprehensive theory of embodied cognition and morphological computation.
+
+**Brohan, A. et al. (2022).** *RT-1: Robotics Transformer for Real-World Control at Scale.* arXiv:2212.06817. — First large-scale transformer applied to multi-task robot learning.
+
+**Black, K. et al. (2024).** *π₀: A Vision-Language-Action Flow Model for General Robot Control.* arXiv:2410.24164. — Physical intelligence foundation model; flow matching for robot actions.
+
+**Chi, C. et al. (2023).** *Diffusion Policy: Visuomotor Policy Learning via Action Diffusion.* RSS 2023. — Diffusion models for robot manipulation; now a standard architecture.
+
+**Duan, J. et al. (2022).** *A Survey of Embodied AI: From Simulators to Research Tasks.* IEEE Transactions on Pattern Analysis and Machine Intelligence.
+
+**Rajeswaran, A. et al. (2017).** *Learning Complex Dexterous Manipulation with Deep Reinforcement Learning and Demonstrations.* RSS 2018. — DAPG algorithm for dexterous hand control.
+
+</ResourceBox>
+
+## 8. Cogninoid build direction
 
 At Cogninoid Labs, we approach embodied AI through:
 
-1. **Modular robotic platforms** — arms and grippers that are cheap enough to experiment on
-2. **Sensor integration** — IMUs, cameras, force sensors feeding real-time data
-3. **AI control layers** — connecting AI agents to physical motor commands
-4. **Closed-loop verification** — measuring whether the robot actually achieved the goal
+- **Modular robotic platforms** — Adeept ADA031 arm as the primary testbed, designed for rapid reconfiguration
+- **Sensor integration** — IMU (MPU-6050), load cells (HX711), PicoScope for signal acquisition
+- **AI control layers** — Connecting AI agents to physical motor commands via serial bridge
+- **Closed-loop verification** — Every action is followed by a measurement verifying the physical outcome
+- **Iterative build** — Small, fully-verified experiments scaled up incrementally
 
-## Beginner project
+## 9. Beginner project
 
-Build a robotic arm that can reach a target position using inverse kinematics.
+**Servo reach experiment**: Build a robotic arm that moves to a commanded joint angle and verifies it arrived.
 
-- **Hardware**: Adeept robotic arm, Arduino or Raspberry Pi Pico
-- **Software**: Position control via PWM signals to servo motors
-- **Goal**: Given (x, y, z) coordinates, compute joint angles and move the arm
-- **Verification**: Does the end effector reach within 5mm of the target?
+- **Hardware**: Adeept arm or 2-DOF servo bracket, Arduino Uno, servo motor, potentiometer
+- **Software**: Joint angle command via Serial → PWM signal → servo motor
+- **Goal**: Command 45°, measure actual angle via potentiometer feedback, verify within ±3°
+- **Verification checklist**: Does the servo reach the target? Is the error below threshold? What causes drift?
 
-## Advanced project
+## 10. Advanced project
 
-Build a pick-and-place system with visual feedback.
+**Closed-loop pick-and-place with visual verification**:
 
-- **Hardware**: Robotic arm + overhead camera + 3D-printed gripper
-- **Software**: Object detection → gripper position calculation → motion execution → grasp verification
-- **Goal**: Reliably pick objects from a defined workspace and place them in a target zone
-- **Verification**: Success rate over 20 consecutive trials
+- **Hardware**: Robotic arm + overhead USB camera + 3D-printed gripper + force sensor on fingertips
+- **Software**: Object detection (YOLOv8) → gripper position IK → motion execution → contact detection → grasp verification
+- **Goal**: Pick coloured blocks from a defined workspace and place in target zones with 90% success over 20 trials
+- **Verification**: Log each trial, record all failures, identify dominant failure modes
 
-<NextStepBox steps={[
-  { label: "Agentic Systems", href: "/atlas/agentic-systems", description: "AI that plans and executes autonomously" },
-  { label: "Human–Machine Interaction", href: "/atlas/human-machine-interaction", description: "The interface between humans and embodied systems" },
-  { label: "Servo Motor", href: "/hardware/servo-motor", description: "The actuator behind most robotic arms" }
-]} />
+<OpenQuestionsBox>
+
+- Can a single policy trained entirely in simulation, with no real-world data, reliably perform contact-rich manipulation on arbitrary everyday objects?
+- What is the minimal physical embodiment required to exhibit general manipulation capability?
+- How should robots represent the uncertainty in their own actuator execution, and how should this uncertainty propagate into planning?
+- Can robot learning benefit from the same internet-scale pretraining that transformed NLP — and if so, what is the right data modality?
+- What formal frameworks best capture the sample complexity of physical skill learning?
+
+</OpenQuestionsBox>
+
+<NextStepBox title="Continue learning">
+  <NextStep href="/atlas/agentic-systems" label="Agentic Systems" description="AI that plans and executes autonomously through tools" />
+  <NextStep href="/atlas/human-machine-interaction" label="Human–Machine Interaction" description="The interface between humans and embodied systems" />
+  <NextStep href="/hardware/servo-motor" label="Servo Motor" description="The primary actuator in robotic arms — specs and control" />
+  <NextStep href="/hardware/imu-sensor" label="IMU Sensor" description="Orientation and acceleration sensing for robot state estimation" />
+</NextStepBox>

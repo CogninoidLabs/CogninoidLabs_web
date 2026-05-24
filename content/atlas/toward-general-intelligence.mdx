@@ -1,0 +1,154 @@
+---
+title: "Toward General Intelligence"
+description: "General intelligence is not a finished technology but an active research question: how can systems reason, learn, plan, use tools, interact with humans, and improve across tasks and environments?"
+difficulty: advanced
+order: 4
+tags: ["AGI", "reasoning", "planning", "world models", "evaluation", "intelligence"]
+category: "Cogninoid Atlas"
+---
+
+<LearningObjectives>
+- Why "general intelligence" is a research question, not a product claim
+- The core cognitive primitives: reasoning, memory, planning, adaptation
+- What current large language models can and cannot do
+- How evaluation of general capability is approached scientifically
+- What "verifiable" AI behaviour means and why it matters for building trustworthy systems
+</LearningObjectives>
+
+## 1. What is General Intelligence?
+
+This page does not treat general intelligence as a finished technology or an imminent product. It treats it as a scientific question: **under what conditions can a system reason, plan, learn, adapt, use tools, and interact with humans across a wide range of tasks and environments — and how do we know when it does?**
+
+The historical AI programme has repeatedly confused narrow capability with general capability. Systems that appeared general (Deep Blue, Watson, AlphaGo) were brittle outside their domains. The appropriate scientific posture is: measure specific capabilities rigorously, avoid extrapolating from benchmark performance to genuine generality, and build incrementally verifiable systems.
+
+<MentalModelBox title="Benchmark performance is not the same as general capability">
+A model that achieves 90% on a reasoning benchmark may be pattern-matching to surface features of the test set, not reasoning. Chollet (2019) showed this empirically: models that excelled on standard IQ-style tests failed at tasks requiring genuine novel abstraction. Evaluation must be designed to resist memorisation and to require core cognitive operations — not surface fluency.
+</MentalModelBox>
+
+## 2. Why it matters
+
+Whether or not "AGI" as popularly defined ever arrives, the research questions it generates are scientifically productive:
+
+- How do we build systems that generalise to tasks not seen during training?
+- How do we build systems that can reason about their own uncertainty?
+- How do systems learn to use tools and external memory — and when should they?
+- How do we verify that an AI system has understood a task rather than pattern-matched a solution?
+
+These questions are not abstract. They directly affect the quality and safety of AI deployed in scientific research, engineering, and physical systems today.
+
+## 3. Fundamental building blocks
+
+**Reasoning** — the capacity to draw valid inferences from premises, apply rules to novel situations, and solve problems by decomposing them into verifiable steps. Chain-of-thought prompting (Wei et al., 2022) improved LLM reasoning by making intermediate steps explicit. But reasoning must be distinguished from *fluent text generation that resembles reasoning*.
+
+**Memory** — representing context that extends beyond immediate input. This includes working memory (in-context window), episodic memory (retrieval-augmented generation), and parametric memory (knowledge encoded in weights).
+
+**Planning** — selecting sequences of actions to achieve goals in multi-step environments. This requires a model of state, goals, and the effects of actions — a *world model* in the sense of Tolman (1948) and LeCun (2022).
+
+**Learning and adaptation** — updating behaviour based on experience. In-context learning (Brown et al., 2020) is a form of fast adaptation: a model generalises from a few examples in its context window without weight updates.
+
+**Tool use** — augmenting reasoning with external capabilities: calculators, code interpreters, search engines, APIs, physical actuators. Schick et al. (2023) and the Toolformer line demonstrated that LLMs can learn to invoke tools via self-supervised training.
+
+**Self-evaluation** — the capacity to check and correct one's own outputs. Reflexion (Shinn et al., 2023) showed that LLMs can improve task performance through verbal self-critique and retry.
+
+## 4. Key scientific questions
+
+- What is the correct formal definition of general intelligence that admits rigorous empirical measurement?
+- Can current transformer-based systems develop genuine compositional generalisation, or is it approximated by scale?
+- What is the role of embodiment in general reasoning? Can a disembodied system develop a robust world model?
+- How do we distinguish systems that "understand" from systems that "appear to understand" on current evaluation benchmarks?
+- What is the minimum architecture required for genuine planning — and is autoregressive next-token prediction sufficient?
+
+## 5. Current research frontier
+
+<ResearchFrontierBlock>
+
+**Chain-of-thought and reasoning** — Wei et al. (2022) showed that prompting LLMs to produce intermediate reasoning steps substantially improved performance on arithmetic and symbolic reasoning tasks. Subsequent work (Kojima et al., 2022 — "Let's think step by step") showed this works even without few-shot examples. However, Marcus & Davis (2019) documented systematic failures on tasks requiring systematic generalisation.
+
+**World models** — LeCun (2022) proposed a Joint Embedding Predictive Architecture (JEPA) as a theoretical path to world models that support planning. Hafner et al. (2023) demonstrated DreamerV3, a world model agent that achieved superhuman performance across diverse tasks including robotic control and Minecraft. World models enable planning via mental simulation.
+
+**Evaluation: ARC-AGI** — Chollet (2019) proposed the Abstraction and Reasoning Corpus (ARC) as a benchmark for general intelligence, requiring novel visual programme induction from few examples. It remains difficult for current models; ARC-AGI-2 (2024) raised the bar further.
+
+**Large language models as general-purpose systems** — GPT-4, Claude 3.5, and Gemini 1.5 demonstrate impressive breadth. Bubeck et al. (2023) documented "sparks of AGI" in GPT-4 across diverse tasks. However, systematic failures on spatial reasoning, novel counting, and adversarial probes remain.
+
+**Agentic architectures** — Combining planning, memory, tool use, and self-evaluation into agent frameworks (AutoGPT, Voyager, SWE-agent) enables multi-step task completion. Performance on real-world software engineering (SWE-bench) reached 13–50% depending on the agent.
+
+**Self-improving systems** — Zelikman et al. (2022) introduced STaR: bootstrapping reasoning from self-generated correct answers. AlphaCode and AlphaCodium use test-time compute for code generation. This suggests an iterative path toward capability improvement.
+
+</ResearchFrontierBlock>
+
+## 6. Practical workflow
+
+Building systems that embody good design principles for general capability:
+
+1. **Define the task precisely** — what inputs, what outputs, what success criterion?
+2. **Build a minimal working version** — not the most capable system, the most *verifiable* one
+3. **Test adversarially** — design inputs specifically to break assumptions
+4. **Add reasoning traces** — make the system show its work; this exposes errors
+5. **Add reflection loops** — the system checks and revises its own outputs
+6. **Measure, do not assume** — log accuracy, failure modes, and edge cases
+
+<EngineeringMindsetBox>
+The "From vibe coding to verifiable building" principle directly applies here. A system that produces plausible-sounding outputs is not trustworthy. A system that produces verifiable outputs — with reasoning traces, intermediate steps, and testable claims — is useful for serious work. Build for verification, not for impression.
+</EngineeringMindsetBox>
+
+## 7. Key references
+
+<ResourceBox>
+
+**Chollet, F. (2019).** *On the Measure of Intelligence.* arXiv:1911.01547. — Formal definition of intelligence as skill-acquisition efficiency; introduces ARC benchmark; essential reading before making any AGI claim.
+
+**Bubeck, S. et al. (2023).** *Sparks of Artificial General Intelligence: Early experiments with GPT-4.* arXiv:2303.12528. — Careful empirical survey of GPT-4 capabilities; documents both breadth and systematic failures.
+
+**LeCun, Y. (2022).** *A Path Towards Autonomous Machine Intelligence.* OpenReview. — Proposes JEPA architecture and energy-based models as a theoretical path to general AI; sceptical of autoregressive LLMs for planning.
+
+**Wei, J. et al. (2022).** *Chain-of-Thought Prompting Elicits Reasoning in Large Language Models.* NeurIPS 2022. — Demonstrates that explicit reasoning traces substantially improve multi-step reasoning.
+
+**Lake, B.M. et al. (2017).** *Building machines that learn and think like people.* Behavioral and Brain Sciences, 40, E253. — Argues for core knowledge, compositionality, and causal reasoning as requirements for human-like learning.
+
+**Hafner, D. et al. (2023).** *Mastering Diverse Domains through World Models.* arXiv:2301.04104. — DreamerV3: unified world model agent across robotics, Atari, and Minecraft.
+
+**Shinn, N. et al. (2023).** *Reflexion: Language Agents with Verbal Reinforcement Learning.* NeurIPS 2023. — Self-reflection and iterative refinement as a path to better LLM task performance.
+
+**Marcus, G. & Davis, E. (2019).** *Rebooting AI: Building Artificial Intelligence We Can Trust.* Pantheon. — Accessible critical analysis of deep learning limitations and what is required for genuine generality.
+
+</ResourceBox>
+
+## 8. Cogninoid build direction
+
+The "toward general intelligence" question shapes Cogninoid's engineering philosophy:
+
+- **From vibe coding to verifiable building** — every system we build must produce verifiable outputs, not plausible-sounding ones
+- **AI agents for scientific workflows** — agents that plan, execute experiments, and check their own results with logging and human oversight
+- **Physical grounding** — embodied systems as a constraint that forces genuine world modelling, not surface correlation
+
+## 9. Beginner project
+
+**AI assistant that explains code with reasoning traces**:
+
+- **Tools**: Claude API or OpenAI API, Python
+- **Goal**: Build a function that takes a code snippet, asks the model to explain it step-by-step, and then asks the model to rate its own explanation confidence
+- **Verification**: Test on code you wrote; check if the explanation is actually correct; flag when the model is confidently wrong
+
+## 10. Advanced project
+
+**Verified agentic workflow with logging and human approval**:
+
+- **Tools**: Claude Code SDK or LangChain, file system tools, a test suite
+- **Goal**: Build an agent that accepts a task description, plans a set of steps, executes them with tools, checks each step, logs success/failure, and pauses for human approval before destructive operations
+- **Verification**: Every step is logged with its outcome; the agent correctly identifies when to ask for help; failure rate drops over 10 trials as you improve the prompt and tool set
+
+<OpenQuestionsBox>
+
+- Can a system be genuinely general if it was trained on human-generated data only — or does it necessarily reflect the boundaries of human cognition?
+- Is there a crisp theoretical boundary between "reasoning" and "pattern matching that resembles reasoning"?
+- What is the correct unit of evaluation for general intelligence — individual tasks, task distributions, or open-ended environments?
+- How should general systems handle the discovery that they do not know something?
+- Is embodiment (physical grounding in the real world) necessary for the kind of world modelling that supports robust planning?
+
+</OpenQuestionsBox>
+
+<NextStepBox title="Continue learning">
+  <NextStep href="/atlas/agentic-systems" label="Agentic Systems" description="How AI acts through tools, planning, and multi-step workflows" />
+  <NextStep href="/atlas/embodied-ai" label="Embodied AI" description="Physical grounding as a path toward robust world models" />
+  <NextStep href="/atlas/human-machine-interaction" label="Human–Machine Interaction" description="How humans guide, correct, and collaborate with AI systems" />
+</NextStepBox>

@@ -1,0 +1,166 @@
+---
+title: "Quantum Computing"
+description: "Quantum computing processes information using quantum mechanical phenomena — superposition, entanglement, and interference — enabling algorithms that are fundamentally impossible on classical computers."
+difficulty: advanced
+order: 3
+tags: ["quantum", "qubits", "algorithms", "NISQ", "quantum ML", "computing"]
+category: "Cogninoid Atlas"
+---
+
+<LearningObjectives>
+- What qubits are and how superposition differs from classical bits
+- How quantum gates and circuits work
+- The difference between NISQ devices and fault-tolerant quantum computing
+- What quantum machine learning actually offers and where it overpromises
+- How to implement and run a first quantum circuit
+</LearningObjectives>
+
+## 1. What is Quantum Computing?
+
+Classical computers store information as bits: each bit is either 0 or 1. A **qubit** (quantum bit) exists in a superposition of both 0 and 1 simultaneously, described by a complex probability amplitude. When measured, the qubit collapses to 0 or 1 with probabilities determined by the amplitude.
+
+This is not the same as "storing both 0 and 1" — a qubit before measurement is in a genuine quantum superposition, not an unknown classical value. The computational advantage comes from how quantum states *interfere* during computation: constructive interference amplifies correct answers, destructive interference suppresses wrong ones.
+
+**Entanglement** creates correlations between qubits that have no classical analogue. Measuring one entangled qubit instantaneously determines the state of its partner, regardless of distance.
+
+<MentalModelBox title="Superposition is not classical uncertainty — it is quantum parallelism">
+A classical probabilistic bit is like a coin that is face-down: it is either heads or tails but you do not know which. A qubit in superposition is genuinely both at once — not uncertain, but in a quantum combination. The computational advantage comes not from "trying all possibilities simultaneously" but from carefully engineering interference so correct answers amplify and wrong answers cancel before measurement.
+</MentalModelBox>
+
+## 2. Why it matters
+
+Quantum computing offers polynomial or exponential speedups for specific problem classes:
+
+- **Cryptography** — Shor's algorithm (1994) factors large integers in polynomial time, breaking RSA encryption. This drives national quantum security programmes worldwide.
+- **Search and optimisation** — Grover's algorithm achieves quadratic speedup for unstructured search. Quantum annealing and QAOA target combinatorial optimisation.
+- **Quantum simulation** — simulating quantum systems (molecules, materials) is exponentially hard classically but natural for quantum computers. This is the most near-term scientific application.
+- **Machine learning** — quantum kernels and variational circuits offer potential speedups for specific learning tasks, though the advantage is contested.
+
+## 3. Fundamental building blocks
+
+**The qubit**: mathematically described as |ψ⟩ = α|0⟩ + β|1⟩, where α and β are complex numbers satisfying |α|² + |β|² = 1. The Bloch sphere is the geometric representation.
+
+**Quantum gates**: unitary matrices that transform qubit states reversibly. Key single-qubit gates:
+- *Hadamard (H)*: creates superposition from |0⟩ → (|0⟩+|1⟩)/√2
+- *Pauli-X*: bit flip (classical NOT)
+- *Pauli-Z*: phase flip
+- *T gate*: π/8 rotation; universal when combined with H and CNOT
+
+**Multi-qubit gates**: CNOT (controlled-NOT) entangles two qubits and, combined with single-qubit gates, forms a universal gate set.
+
+**Quantum circuits**: sequences of gates applied to qubits, followed by measurement. Analogous to classical logic circuits but must be unitary (reversible) until measurement.
+
+**Quantum noise**: real quantum hardware suffers from decoherence (quantum states decay into classical mixtures), gate errors, and readout errors. NISQ (Noisy Intermediate-Scale Quantum) devices have 50–1000 qubits but no error correction.
+
+<SignalFlowDiagram title="Quantum Circuit Execution">
+  <FlowNode label="Initialise" sublabel="|0⟩ state" color="cyan" />
+  <FlowNode label="State prep" sublabel="H, Ry gates" color="blue" />
+  <FlowNode label="Entangle" sublabel="CNOT layer" color="violet" />
+  <FlowNode label="Parameterised" sublabel="Rotation gates" color="blue" />
+  <FlowNode label="Measure" sublabel="Collapse to bits" color="amber" />
+  <FlowNode label="Postprocess" sublabel="Expectation values" color="green" />
+</SignalFlowDiagram>
+
+## 4. Key scientific questions
+
+- What is the threshold for quantum advantage on practically useful problems, not synthetic benchmarks?
+- How many logical qubits (after error correction) are needed to break RSA-2048 — and when will hardware reach that scale?
+- Do quantum kernels offer genuine advantage over classical kernel methods on real datasets?
+- What is the barren plateau problem in variational quantum circuits, and is it fundamental or solvable?
+- Can quantum simulation of molecular systems (exact ground-state energies) achieve practical advantage before fault-tolerant quantum computers?
+- How does quantum sensing differ from quantum computing in terms of near-term utility?
+
+## 5. Current research frontier
+
+<ResearchFrontierBlock>
+
+**NISQ era and variational algorithms** — Current hardware supports 50–1000 noisy qubits. Variational Quantum Eigensolver (VQE) and QAOA (Farhi et al., 2014) are the dominant algorithms: parameterised quantum circuits optimised by a classical outer loop. Practical advantage remains elusive on most problems.
+
+**Quantum error correction (QEC)** — Google (Acharya et al., 2023) demonstrated below-threshold error correction with surface codes on a 72-qubit processor, a critical milestone on the path to fault tolerance. QEC requires roughly 1000 physical qubits per logical qubit at current error rates.
+
+**Quantum machine learning (QML)** — Biamonte et al. (2017) reviewed early QML proposals. Schuld & Killoran (2019) and Havlíček et al. (2019) demonstrated quantum kernel methods on near-term hardware. However, Huang et al. (2021) showed that quantum kernel advantage requires careful problem selection and does not generalise.
+
+**Quantum simulation of chemistry** — Google's Sycamore processor ran a quantum simulation of the Hartree-Fock method (Arute et al., 2020). IBM demonstrated simulation of the electronic structure of small molecules with VQE. This remains the most scientifically credible near-term application.
+
+**Neutral atom platforms** — QuEra, Pasqal, and Atom Computing use individual Rb/Cs atoms trapped by optical tweezers as qubits. These platforms offer programmable connectivity and demonstrated 48-logical-qubit error-corrected computation (Bluvstein et al., 2024).
+
+**Quantum sensing** — Nitrogen-vacancy (NV) centres in diamond enable nanoscale magnetic field sensing at room temperature. Quantum-enhanced interferometry is already deployed in gravitational wave detectors (LIGO). This is the most mature quantum technology.
+
+</ResearchFrontierBlock>
+
+## 6. Practical workflow
+
+Getting started on real quantum hardware:
+
+1. **Qiskit or Pennylane** — IBM's Qiskit and Xanadu's PennyLane are the two major open-source frameworks
+2. **IBM Quantum free tier** — run circuits on real quantum hardware via IBM Quantum Platform (free access to 127-qubit processors)
+3. **Start with circuit basics** — implement Bell state, GHZ state, quantum teleportation
+4. **Try VQE for H₂** — find the ground state energy of the hydrogen molecule (the hello world of quantum chemistry)
+5. **Explore quantum kernels** — implement a quantum kernel classifier using PennyLane's `qml.kernels` module
+6. **Benchmark against classical** — always compare with `scikit-learn` SVM on the same dataset
+
+<ScientificThinkingBox>
+Do not trust quantum speedup claims without rigorous comparison. Many published "quantum advantage" results use toy datasets or comparison classical baselines that are not state-of-the-art. For any quantum ML result, ask: (1) What is the best classical algorithm on this dataset? (2) Does the quantum advantage survive when you use a better classical method? (3) Is the advantage in asymptotic scaling or wall-clock time?
+</ScientificThinkingBox>
+
+## 7. Key references
+
+<ResourceBox>
+
+**Nielsen, M.A. & Chuang, I.L. (2000).** *Quantum Computation and Quantum Information.* Cambridge University Press. — The foundational textbook. Chapters 1–4 cover the mathematical foundations; Chapters 5–6 cover key algorithms.
+
+**Preskill, J. (2018).** *Quantum Computing in the NISQ Era and Beyond.* Quantum, 2, 79. — Essential roadmap paper; coined "NISQ"; honest assessment of near-term prospects.
+
+**Biamonte, J. et al. (2017).** *Quantum machine learning.* Nature, 549(7671), 195–202. — Review of quantum ML proposals and their actual computational advantages.
+
+**Shor, P.W. (1994).** *Algorithms for quantum computation: discrete logarithms and factoring.* FOCS 1994. — The paper that made quantum computing critical infrastructure for cryptography.
+
+**Farhi, E., Goldstone, J. & Gutmann, S. (2014).** *A Quantum Approximate Optimization Algorithm.* arXiv:1411.4028. — QAOA; the most studied NISQ algorithm for combinatorial optimisation.
+
+**Cerezo, M. et al. (2021).** *Variational quantum algorithms.* Nature Reviews Physics, 3(9), 625–644. — Comprehensive review of VQA landscape, barren plateaus, and expressibility.
+
+**Acharya, R. et al. (2023).** *Suppressing quantum errors by scaling a surface code logical qubit.* Nature, 614, 676–681. — Google's below-threshold error correction milestone.
+
+**Havlíček, V. et al. (2019).** *Supervised learning with quantum-enhanced feature spaces.* Nature, 567, 209–212. — Quantum kernel classification on real hardware.
+
+</ResourceBox>
+
+## 8. Cogninoid build direction
+
+Quantum computing connects to Cogninoid's scientific AI work at two levels:
+
+- **Quantum kernels for materials** — quantum feature maps for small datasets in materials property prediction; comparing classical vs. quantum kernel performance as a scientific benchmark
+- **Quantum simulation** — VQE-based ground state estimation for candidate materials, complementing classical DFT
+- **Quantum sensing** — future direction: NV-centre magnetometry for probing materials at the nanoscale
+
+## 9. Beginner project
+
+**Visualise a qubit on the Bloch sphere**:
+
+- **Tools**: Qiskit, matplotlib, qiskit-terra's `plot_bloch_multivector`
+- **Goal**: Create a circuit that applies H, then Ry(θ) for various θ; visualise how the state moves on the Bloch sphere
+- **Verification**: At θ=0 after H, the state is |+⟩; at θ=π, it is |−⟩. Does the Bloch vector match your prediction?
+
+## 10. Advanced project
+
+**Quantum kernel classifier vs. classical SVM**:
+
+- **Tools**: PennyLane, `qml.kernels`, `scikit-learn`, a benchmark dataset (Iris or 2-class MNIST subsets)
+- **Goal**: Implement a quantum kernel using angle embedding (ZZFeatureMap); compute the kernel matrix; train an SVM; compare accuracy and training time with `sklearn.svm.SVC` with RBF kernel
+- **Verification**: Report accuracy, kernel matrix computation time, and whether the quantum kernel shows any advantage. Be rigorous — it likely will not, but the comparison is the learning.
+
+<OpenQuestionsBox>
+
+- Is there a practically relevant classical problem where a NISQ-era quantum computer demonstrates reproducible speedup?
+- Are variational quantum circuits fundamentally limited by barren plateaus, or can architecture search overcome them?
+- What is the correct theoretical framework for predicting quantum advantage on machine learning tasks?
+- Can quantum simulation of electronic structure achieve chemical accuracy for molecules larger than 50 atoms before classical methods catch up?
+- How should quantum sensing capabilities (NV centres, trapped ions) be integrated with AI systems for scientific measurement?
+
+</OpenQuestionsBox>
+
+<NextStepBox title="Continue learning">
+  <NextStep href="/atlas/ai-for-scientific-discovery" label="AI for Scientific Discovery" description="How quantum simulation connects to materials discovery" />
+  <NextStep href="/atlas/toward-general-intelligence" label="Toward General Intelligence" description="Broader landscape of reasoning and computation" />
+  <NextStep href="/atlas/multimodal-intelligence" label="Multimodal Intelligence" description="Quantum feature maps as a special case of representation learning" />
+</NextStepBox>

@@ -5,20 +5,23 @@ import WorkflowStep from "./WorkflowStep";
 import CommonMistakeBox from "./CommonMistakeBox";
 import DebugBox from "./DebugBox";
 import VerifyBox from "./VerifyBox";
-import NextStepBox from "./NextStepBox";
+import NextStepBox, { NextStep } from "./NextStepBox";
 import DifficultyBadge from "./DifficultyBadge";
 import ChecklistBox from "./ChecklistBox";
 import EngineeringMindsetBox from "./EngineeringMindsetBox";
 import ScientificThinkingBox from "./ScientificThinkingBox";
 import SafetyNoteBox from "./SafetyNoteBox";
-import SpecTable from "./SpecTable";
+import SpecTable, { SpecRow } from "./SpecTable";
 import AtlasHero from "./AtlasHero";
 import ResearchFrontierBlock from "./ResearchFrontierBlock";
 import WorkflowBridge from "./WorkflowBridge";
-import PinoutBox from "./PinoutBox";
-import WiringBox from "./WiringBox";
-import SignalFlowDiagram from "./SignalFlowDiagram";
+import PinoutBox, { PinRow } from "./PinoutBox";
+import WiringBox, { WireRow } from "./WiringBox";
+import SignalFlowDiagram, { FlowNode } from "./SignalFlowDiagram";
 import ConceptMap from "./ConceptMap";
+import LearningObjectives from "./LearningObjectives";
+import OpenQuestionsBox from "./OpenQuestionsBox";
+import ResourceBox from "./ResourceBox";
 
 export const mdxComponents: MDXComponents = {
   // Standard HTML elements — styled to match dark theme
@@ -102,24 +105,32 @@ export const mdxComponents: MDXComponents = {
     <td className="px-4 py-3 text-slate-400 border-b border-white/[0.04]">{children}</td>
   ),
 
-  // Custom components exported for MDX use
+  // Custom components
   MentalModelBox,
   WorkflowStep,
   CommonMistakeBox,
   DebugBox,
   VerifyBox,
   NextStepBox,
+  NextStep,
   DifficultyBadge,
   ChecklistBox,
   EngineeringMindsetBox,
   ScientificThinkingBox,
   SafetyNoteBox,
   SpecTable,
+  SpecRow,
   AtlasHero,
   ResearchFrontierBlock,
   WorkflowBridge,
   PinoutBox,
+  PinRow,
   WiringBox,
+  WireRow,
   SignalFlowDiagram,
+  FlowNode,
   ConceptMap,
+  LearningObjectives,
+  OpenQuestionsBox,
+  ResourceBox,
 };

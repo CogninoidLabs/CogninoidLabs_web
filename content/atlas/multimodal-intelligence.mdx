@@ -1,0 +1,151 @@
+---
+title: "Multimodal Intelligence"
+description: "Multimodal intelligence is the ability of an AI system to understand, align, and reason across different forms of information — text, images, audio, sensor signals, molecular structures, and physical measurements."
+difficulty: intermediate
+order: 2
+tags: ["AI", "multimodal", "representation learning", "vision-language", "contrastive learning"]
+category: "Cogninoid Atlas"
+---
+
+<LearningObjectives>
+- What a modality is and why aligning multiple modalities is hard
+- How contrastive learning and representation alignment work
+- The current frontier: vision-language-action models and scientific multimodal AI
+- Why multimodal AI is central to embodied systems and scientific discovery
+- How to build a first multimodal application
+</LearningObjectives>
+
+## 1. What is Multimodal Intelligence?
+
+A **modality** is any distinct type or format of information: text, images, audio, video, sensor time series, molecular graphs, protein structures, force measurements. **Multimodal intelligence** is the capacity of an AI system to take in, align, and reason across more than one of these modalities simultaneously.
+
+The challenge is not collecting different data types — it is building shared representations so that concepts expressed in one modality (a picture of a cat) are understood as equivalent to the same concept in another (the word "cat"). Without alignment, a model has two isolated vocabularies that cannot talk to each other.
+
+<MentalModelBox title="A shared embedding space is the meeting point of modalities">
+Imagine all possible images and all possible text sentences existing as points in a high-dimensional space. A multimodal model is trained so that a photo of a burning building and the sentence "a building on fire" end up close together in this space — even though one is pixel values and the other is token indices. This shared geometric structure is what enables cross-modal reasoning.
+</MentalModelBox>
+
+## 2. Why it matters
+
+The physical world is inherently multimodal. A robot must integrate camera images, force sensor readings, joint angle measurements, and natural language instructions to execute a task. A scientist interpreting experimental data must connect instrument readings, molecular structure diagrams, prior literature (text), and spectral signals.
+
+Unimodal AI is powerful but narrow. Multimodal AI enables:
+
+- **Robotics and embodied AI** — cameras, proprioception, language instructions
+- **Scientific discovery** — spectra + molecular graphs + literature + properties
+- **Medical diagnosis** — imaging + clinical notes + lab values + genomics
+- **Human-computer interaction** — voice + gesture + context + intent
+
+## 3. Fundamental building blocks
+
+**Representation learning** — learning dense vector representations (embeddings) that capture semantic meaning. The foundation is that similar things should be close in embedding space.
+
+**Contrastive learning** — a training objective that pulls together representations of matching pairs (image, its caption) and pushes apart non-matching pairs. CLIP (Radford et al., 2021) is the canonical example: trained on 400 million image-text pairs from the web, it produced a joint vision-language embedding space that transferred remarkably to downstream tasks without fine-tuning.
+
+**Cross-modal attention** — transformer attention mechanisms applied across modalities. A vision-language transformer can attend from text tokens to image patches and vice versa, enabling fine-grained alignment.
+
+**Fusion strategies**:
+- *Early fusion* — concatenate raw inputs before processing
+- *Late fusion* — process each modality separately, combine at the end
+- *Cross-attention fusion* — transformer-based, allows dynamic information exchange
+
+<SignalFlowDiagram title="Multimodal Alignment Pipeline">
+  <FlowNode label="Image encoder" sublabel="ViT, ResNet" color="cyan" />
+  <FlowNode label="Text encoder" sublabel="BERT, GPT" color="blue" />
+  <FlowNode label="Projection" sublabel="Linear, MLP" color="violet" />
+  <FlowNode label="Shared space" sublabel="Contrastive alignment" color="green" />
+  <FlowNode label="Cross-modal task" sublabel="VQA, retrieval, control" color="amber" />
+</SignalFlowDiagram>
+
+## 4. Key scientific questions
+
+- What is the minimum amount of aligned data required to achieve robust cross-modal generalisation?
+- How should models handle modalities with fundamentally different statistical structures (images vs. molecular graphs)?
+- Can multimodal models reason causally across modalities, or only correlate?
+- How do we evaluate multimodal understanding beyond benchmark accuracy — what is a rigorous test of true cross-modal reasoning?
+- What happens when modalities conflict or provide partially overlapping information?
+
+## 5. Current research frontier
+
+<ResearchFrontierBlock>
+
+**CLIP and contrastive vision-language** — Radford et al. (2021) demonstrated that contrastive pretraining on image-text pairs produces a representation that generalises to novel tasks via zero-shot prompting. This sparked the modern multimodal AI era and remains the dominant paradigm.
+
+**Flamingo and few-shot multimodal models** — Alayrac et al. (2022) introduced cross-attention mechanisms that interleave visual features into frozen language model activations, enabling few-shot visual question answering without fine-tuning.
+
+**GPT-4V and native multimodal LLMs** — OpenAI (2023) demonstrated that large language models can be extended to accept images as input. LLaVA, InstructBLIP, and Qwen-VL are open-source alternatives exploring the same direction.
+
+**ImageBind** — Girdhar et al. (2023) showed that binding six modalities (image, text, audio, depth, thermal, IMU) into a single shared space allows any modality pair to be linked, even without paired training data, using image as an anchor.
+
+**Multimodal scientific AI** — Language models are being extended to molecular structures (MolT5, ChemBERTa), protein sequences + structures (ESM-3), and materials properties + spectra. The MEIDNet direction fits here: aligning composition graphs, spectral features, and property measurements in a shared embedding space.
+
+**Vision-language-action models** — RT-2, π₀, and OpenVLA treat robot control as a multimodal problem: image observations + language instruction → motor command tokens. The transformer architecture handles all three modalities jointly.
+
+</ResearchFrontierBlock>
+
+## 6. Practical workflow
+
+1. **Define your modality pair** — what two types of data do you want to align?
+2. **Collect paired data** — examples where both modalities refer to the same concept
+3. **Choose an architecture** — dual-encoder for retrieval tasks, cross-attention for generation tasks
+4. **Choose a training objective** — contrastive (CLIP-style), autoregressive (captioning), or masked modelling
+5. **Evaluate alignment quality** — retrieval metrics (R@1, R@5, R@10), zero-shot classification accuracy
+6. **Probe the embedding space** — nearest neighbours, linear probing, t-SNE visualisation
+
+## 7. Key references
+
+<ResourceBox>
+
+**Radford, A. et al. (2021).** *Learning Transferable Visual Models From Natural Language Supervision.* ICML 2021. — CLIP: contrastive image-text pretraining on 400M pairs; introduced zero-shot visual recognition at scale.
+
+**Alayrac, J.B. et al. (2022).** *Flamingo: a Visual Language Model for Few-Shot Learning.* NeurIPS 2022. arXiv:2204.14198. — Cross-attention injection into frozen LLMs; state-of-the-art few-shot multimodal performance.
+
+**Girdhar, R. et al. (2023).** *ImageBind: One Embedding Space To Bind Them All.* CVPR 2023. — Binding six modalities using image as anchor; zero-shot cross-modal transfer.
+
+**Baltrusaitis, T., Ahuja, C. & Morency, L.P. (2019).** *Multimodal Machine Learning: A Survey and Taxonomy.* IEEE TPAMI, 41(2), 423–443. — Comprehensive survey of fusion, alignment, and translation across modalities.
+
+**Brohan, A. et al. (2023).** *RT-2: Vision-Language-Action Models Transfer Web Knowledge to Robotic Control.* arXiv:2307.15818. — First demonstration that VLM pretraining transfers to physical robot generalisation.
+
+**Reed, S. et al. (2022).** *A Generalist Agent.* Transactions on Machine Learning Research. — Gato: a single transformer handling 604 tasks across modalities including robot control.
+
+</ResourceBox>
+
+## 8. Cogninoid build direction
+
+Multimodal intelligence is core to Cogninoid's scientific AI direction:
+
+- **MEIDNet** — aligning compositional descriptors, spectral signals, and material properties in a shared embedding space for inverse materials design
+- **Sensor-driven robotics** — integrating camera images, IMU readings, force sensor data, and language commands for physical manipulation
+- **Scientific agent workflows** — agents that consume experimental data (spectral, structural) and literature (text) to propose next experiments
+
+## 9. Beginner project
+
+**Image + text retrieval demo**: Build a small CLIP-based app that takes a text query and returns the most relevant image from a local folder.
+
+- **Tools**: `transformers` (HuggingFace), `Pillow`, `torch`
+- **Steps**: Load `openai/clip-vit-base-patch32`; encode a directory of images; encode a query string; compute cosine similarities; return top-k matches
+- **Verification**: The correct image ranks first for unambiguous queries; inspect failure cases
+
+## 10. Advanced project
+
+**Sensor-signal + text explanation dashboard**: Build a system that takes IMU or load cell readings and generates a natural language explanation of what is happening.
+
+- **Tools**: Fine-tuned CLIP or BLIP on (signal-plot, description) pairs, or GPT-4V with rendered plot images
+- **Steps**: Collect sensor data; render as matplotlib plots; describe each recording type; train/prompt a model to caption new recordings
+- **Verification**: Captions correctly identify anomalies (spike, drift, oscillation) with >80% agreement vs. expert labels
+
+<OpenQuestionsBox>
+
+- Is contrastive alignment sufficient for causal cross-modal reasoning, or does the model merely learn correlations?
+- How do we efficiently align modalities when paired data is scarce (e.g., paired molecular structure + experimental spectrum)?
+- What is the correct loss function for modalities with fundamentally different distributions — images (pixels) vs. graphs (topology)?
+- Can multimodal models form compositional representations — understanding "red cube on top of blue sphere" by composing individual concepts?
+- How should multimodal systems handle conflicting signals across modalities?
+
+</OpenQuestionsBox>
+
+<NextStepBox title="Continue learning">
+  <NextStep href="/atlas/embodied-ai" label="Embodied AI" description="How multimodal AI connects to physical robotic systems" />
+  <NextStep href="/atlas/ai-for-scientific-discovery" label="AI for Scientific Discovery" description="Multimodal AI applied to materials, biology, and physics" />
+  <NextStep href="/atlas/agentic-systems" label="Agentic Systems" description="How multimodal models act through tools and workflows" />
+</NextStepBox>
