@@ -13,37 +13,28 @@ export default function FeatureCard({
   title,
   description,
   gradient = "from-cyan-500 to-blue-600",
-  accentColor = "cyan",
 }: FeatureCardProps) {
   return (
-    <div
-      className={`group relative bg-white/[0.04] backdrop-blur-sm border border-white/[0.08] rounded-2xl p-6
-        hover:border-${accentColor}-500/30 hover:bg-white/[0.07] transition-all duration-300 overflow-hidden`}
-    >
-      {/* Background glow on hover */}
-      <div
-        className={`absolute inset-0 rounded-2xl bg-gradient-to-br from-${accentColor}-500/0 to-violet-600/0
-          group-hover:from-${accentColor}-500/5 group-hover:to-violet-600/5 transition-all duration-500`}
-      />
+    <div className="group relative flex flex-col bg-[#07070f] border border-white/[0.07] rounded-2xl p-7 hover:border-white/[0.15] hover:-translate-y-1 transition-all duration-300 overflow-hidden cursor-default">
 
-      {/* Top-right accent dot */}
-      <div
-        className={`absolute top-4 right-4 w-1.5 h-1.5 rounded-full bg-${accentColor}-400/40
-          group-hover:bg-${accentColor}-400/80 group-hover:shadow-[0_0_6px] group-hover:shadow-${accentColor}-400/50
-          transition-all duration-300`}
-      />
+      {/* Top gradient accent line — visible on hover */}
+      <div className={`absolute inset-x-0 top-0 h-px bg-gradient-to-r ${gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+
+      {/* Ambient corner glow */}
+      <div className={`absolute -top-16 -right-16 w-40 h-40 bg-gradient-to-br ${gradient} opacity-0 group-hover:opacity-[0.07] rounded-full blur-3xl transition-opacity duration-700 pointer-events-none`} />
 
       <div className="relative">
         {/* Icon */}
-        <div
-          className={`w-11 h-11 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center mb-5
-            shadow-lg group-hover:scale-110 transition-transform duration-300`}
-        >
-          <Icon className="w-5 h-5 text-white" strokeWidth={1.75} />
+        <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center mb-5 shadow-xl shadow-black/40`}>
+          <Icon className="w-[18px] h-[18px] text-white" strokeWidth={1.75} />
         </div>
 
-        <h3 className="text-white font-semibold text-base mb-2.5">{title}</h3>
-        <p className="text-slate-400 text-sm leading-relaxed">{description}</p>
+        <h3 className="text-[15px] font-semibold text-white mb-2.5 tracking-tight leading-snug">
+          {title}
+        </h3>
+        <p className="text-[13px] text-slate-500 leading-relaxed">
+          {description}
+        </p>
       </div>
     </div>
   );
