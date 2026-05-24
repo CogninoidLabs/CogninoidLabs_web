@@ -1,0 +1,73 @@
+---
+title: "What is GitHub?"
+description: "GitHub is where your code lives online. It tracks every change, lets you collaborate, and connects to deployment services like Vercel. Learn the core concepts every builder needs."
+difficulty: beginner
+order: 2
+tags: ["tools", "git", "version-control", "collaboration"]
+nextSlug: what-is-vercel
+prevSlug: what-is-vscode
+---
+
+GitHub is a website that stores your code in the cloud and tracks every change you make. It is built on top of **Git** — a version control system that records the full history of your project.
+
+<MentalModelBox title="Think of GitHub as Google Docs for code">
+When you write a document in Google Docs, every edit is saved. You can see the history and go back to any version. GitHub does the same for code — but with much more precision. Every saved version has a name (a commit message), a timestamp, and the exact list of what changed.
+</MentalModelBox>
+
+## Git vs GitHub
+
+These are different things:
+
+- **Git** — the tool that runs on your computer, tracking changes locally
+- **GitHub** — the website that stores your Git history in the cloud
+
+You use Git locally through VS Code or the terminal. GitHub is the remote destination where you push your code.
+
+## Core Git concepts
+
+| Term | Meaning |
+|------|---------|
+| Repository (repo) | A project folder tracked by Git |
+| Commit | A saved snapshot of your code at a point in time |
+| Branch | A parallel version of your project |
+| Push | Send local commits to GitHub |
+| Pull | Download commits from GitHub to your machine |
+| Clone | Download a repo from GitHub to your machine |
+
+## The basic workflow
+
+Every time you build something, this is the loop:
+
+1. Make changes in VS Code
+2. Stage the changes (`git add`)
+3. Write a commit message (`git commit -m "what I changed"`)
+4. Push to GitHub (`git push`)
+
+<EngineeringMindsetBox>
+Write commit messages that describe **why** you changed something, not what. "Fix crash when user submits empty form" is useful. "Update form.tsx" is not. Future you — debugging at midnight — will thank present you.
+</EngineeringMindsetBox>
+
+## Why GitHub matters for deployment
+
+When you connect GitHub to Vercel, every push to the `main` branch automatically redeploys your website. You do not need to manually deploy — you just push code, and Vercel does the rest.
+
+This is called **continuous deployment**. It is the standard way professional teams ship software.
+
+<VerifyBox>
+- You have a GitHub account at github.com
+- You can create a new repository on GitHub
+- Running `git status` in the terminal shows the current state of your files
+- Running `git push` sends your commits to GitHub
+</VerifyBox>
+
+<CommonMistakeBox>
+- **Committing large files** — never commit `node_modules/`. Add it to `.gitignore`
+- **Pushing to the wrong branch** — always check which branch you are on with `git branch`
+- **Vague commit messages** — "update" or "fix" tells nobody anything useful
+- **Not pulling before pushing** — always `git pull` before you `git push` when collaborating
+</CommonMistakeBox>
+
+<NextStepBox steps={[
+  { label: "What is Vercel?", href: "/start-here/what-is-vercel", description: "Connect GitHub to automatic deployment" },
+  { label: "Push a project to GitHub", href: "/workflows/02-push-to-github", description: "Step-by-step workflow" }
+]} />

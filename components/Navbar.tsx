@@ -9,10 +9,11 @@ import { GithubIcon } from "@/components/BrandIcons";
 import { LogoMark } from "@/components/LogoSVG";
 
 const navLinks = [
+  { href: "/start-here", label: "Start Here" },
+  { href: "/workflows", label: "Workflows" },
+  { href: "/atlas", label: "Atlas" },
+  { href: "/hardware", label: "Hardware" },
   { href: "/projects", label: "Projects" },
-  { href: "/research", label: "Research" },
-  { href: "/builds", label: "Builds" },
-  { href: "/blog", label: "Blog" },
   { href: "/contact", label: "Contact" },
 ];
 

@@ -1,0 +1,158 @@
+---
+title: "Arduino"
+description: "Arduino is an open-source microcontroller platform that lets you read sensors, control motors, and interface electronics with code. It is the most accessible entry point into hardware programming."
+difficulty: beginner
+order: 4
+tags: ["microcontroller", "hardware", "embedded", "C++"]
+category: "Hardware Atlas"
+nextSlug: esp32
+prevSlug: breadboard
+---
+
+Arduino is a family of microcontroller boards with an IDE and a simplified programming environment. The board you write code for is an actual physical chip that runs your program directly — no operating system, no internet required. Connect sensors, LEDs, motors, or any electronic component, and your code controls them directly.
+
+<MentalModelBox title="Arduino is the simplest computer possible">
+Your laptop runs thousands of programs simultaneously, manages memory, handles networking. An Arduino runs exactly one program, repeatedly, forever. It has no display, no keyboard, no filesystem. It is just: power on → run setup() once → loop() forever. This simplicity is what makes it perfect for controlling hardware.
+</MentalModelBox>
+
+## Why we use it
+
+- **Immediate hardware access** — write a program, upload it, the hardware responds in milliseconds
+- **Huge ecosystem** — thousands of libraries for every sensor, motor, and display imaginable
+- **Cheap** — original Arduino Uno is ~₹500–800. Clones are cheaper
+- **Good documentation** — one of the best-documented platforms for beginners
+- **Industry standard** — the concepts transfer to professional embedded systems
+
+## Working principle
+
+Arduino boards contain an AVR or ARM microcontroller. When you upload code, it is flashed into the chip's non-volatile memory. When powered, the chip:
+
+1. Runs `setup()` once — configure pins, start serial, initialise sensors
+2. Runs `loop()` repeatedly — forever, until power off
+
+The microcontroller reads digital and analogue signals on its input pins and drives signals on output pins. This is the foundation of all physical computing.
+
+## Important parameters (Arduino Uno R3)
+
+<SpecTable
+  title="Arduino Uno R3 Specifications"
+  rows={[
+    { parameter: "Microcontroller", value: "ATmega328P", notes: "8-bit AVR" },
+    { parameter: "Operating voltage", value: "5V", notes: "" },
+    { parameter: "Digital I/O pins", value: "14", notes: "6 with PWM output" },
+    { parameter: "Analogue input pins", value: "6", notes: "10-bit resolution" },
+    { parameter: "Flash memory", value: "32 KB", notes: "0.5 KB used by bootloader" },
+    { parameter: "SRAM", value: "2 KB", notes: "" },
+    { parameter: "Clock speed", value: "16 MHz", notes: "" },
+    { parameter: "USB connection", value: "Type B", notes: "For programming and serial" },
+    { parameter: "DC current per I/O pin", value: "40 mA", notes: "Max — use resistors with LEDs" },
+  ]}
+/>
+
+## Pinout overview
+
+<PinoutBox
+  title="Arduino Uno Key Pins"
+  pins={[
+    { pin: "5V",   label: "5V",    type: "power",         description: "5V regulated output — powers sensors" },
+    { pin: "3.3V", label: "3.3V",  type: "power",         description: "3.3V output — 50 mA max" },
+    { pin: "GND",  label: "GND",   type: "ground",        description: "Ground reference — multiple pins available" },
+    { pin: 0,      label: "RX",    type: "communication", description: "Serial receive — used for USB programming" },
+    { pin: 1,      label: "TX",    type: "communication", description: "Serial transmit" },
+    { pin: "2–13", label: "D2–D13",type: "digital",       description: "Digital input/output — HIGH or LOW" },
+    { pin: "3,5,6,9,10,11", label: "PWM", type: "analog", description: "PWM output — use analogWrite() for motors, LEDs" },
+    { pin: "A0–A5",label: "A0–A5", type: "analog",        description: "Analogue input — reads 0–5V as 0–1023" },
+    { pin: "A4",   label: "SDA",   type: "communication", description: "I2C data" },
+    { pin: "A5",   label: "SCL",   type: "communication", description: "I2C clock" },
+  ]}
+/>
+
+## Basic example code
+
+Blink an LED on pin 13 (the built-in LED):
+
+```cpp
+void setup() {
+  pinMode(13, OUTPUT);   // configure pin 13 as output
+}
+
+void loop() {
+  digitalWrite(13, HIGH);  // LED on
+  delay(1000);             // wait 1 second
+  digitalWrite(13, LOW);   // LED off
+  delay(1000);             // wait 1 second
+}
+```
+
+Read an analogue sensor and print to Serial Monitor:
+
+```cpp
+void setup() {
+  Serial.begin(9600);    // start serial at 9600 baud
+}
+
+void loop() {
+  int value = analogRead(A0);    // read pin A0 (0–1023)
+  float voltage = value * (5.0 / 1023.0);   // convert to volts
+  Serial.println(voltage);       // print to serial monitor
+  delay(100);
+}
+```
+
+## How to test it
+
+1. Connect Arduino via USB
+2. Open Arduino IDE, select your board (Tools → Board → Arduino Uno)
+3. Select the correct port (Tools → Port)
+4. Upload the Blink example (File → Examples → Basics → Blink)
+5. The built-in LED on pin 13 should blink every second
+
+<SafetyNoteBox>
+- Never exceed 5V on digital pins — this will destroy the microcontroller
+- Always use current-limiting resistors (220Ω–1kΩ) when connecting LEDs
+- Never draw more than 40mA from a single I/O pin — use a transistor or motor driver for motors
+- Do not reverse polarity — Arduino boards can be destroyed by reversed power connections
+</SafetyNoteBox>
+
+<CommonMistakeBox>
+- **Forgetting pinMode()** — pins default to INPUT. If you want to drive an LED, set pinMode(pin, OUTPUT) in setup()
+- **Using delay() with sensors** — delay() blocks everything. For precise timing, use millis()
+- **Not setting Serial baud rate** — if Serial Monitor shows garbage, the baud rates don't match
+- **Driving motors directly from I/O pins** — motors need more current than Arduino pins can provide. Use a motor driver (L298N, DRV8833)
+</CommonMistakeBox>
+
+<VerifyBox>
+- The Blink sketch uploads without errors
+- The built-in LED blinks at 1Hz
+- Serial Monitor shows expected values from analogRead()
+- No pins get hot to the touch (sign of overcurrent)
+</VerifyBox>
+
+## Robotics and AI use cases
+
+- **Servo motor control** — PWM signals to joint servos in robotic arms
+- **Sensor reading** — reading IMUs, ultrasonic sensors, encoders for feedback
+- **Serial communication** — bridge between Raspberry Pi (running AI) and physical actuators
+- **PID control** — motor speed regulation using encoder feedback
+
+## Beginner project
+
+Blink an LED with a button control.
+
+Components: Arduino Uno, LED, 220Ω resistor, push button, breadboard, jumper wires.
+
+Goal: LED is off by default. Press and hold the button → LED turns on. Release → LED turns off.
+
+## Advanced project
+
+Build a servo arm controlled by a joystick.
+
+Components: Arduino Uno, 2-axis joystick module, 2× servo motors, breadboard.
+
+Goal: Joystick X-axis controls one servo, Y-axis controls the other. Smooth, proportional control using `map()` to convert 0–1023 to 0–180 degrees.
+
+<NextStepBox steps={[
+  { label: "ESP32", href: "/hardware/esp32", description: "More powerful microcontroller with Wi-Fi and Bluetooth" },
+  { label: "Servo Motor", href: "/hardware/servo-motor", description: "The actuator you will control with Arduino" },
+  { label: "Motor Driver", href: "/hardware/motor-driver", description: "How to drive DC motors safely" }
+]} />

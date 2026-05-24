@@ -1,0 +1,79 @@
+---
+title: "What is VS Code?"
+description: "VS Code is your primary workspace for writing, editing, and debugging code. Learn what it is, why we use it, and how to set it up for AI-assisted development."
+difficulty: beginner
+order: 1
+tags: ["tools", "setup", "editor"]
+nextSlug: what-is-github
+---
+
+VS Code (Visual Studio Code) is a free, open-source code editor made by Microsoft. It runs on Windows, Mac, and Linux. It is where you will write every line of code in your projects.
+
+<MentalModelBox title="Think of VS Code as your workshop">
+A carpenter works in a workshop with tools organised on the wall. VS Code is your digital workshop. Your files are the materials. Extensions are your specialised tools. The terminal at the bottom is where you run commands — like a power socket that runs every machine in the room.
+</MentalModelBox>
+
+## Why VS Code, not something simpler?
+
+You could write code in Notepad. But VS Code gives you:
+
+- **Syntax highlighting** — code is colour-coded so you can read it faster
+- **IntelliSense** — autocomplete that suggests what to type next
+- **Integrated terminal** — run `npm run dev` without leaving the editor
+- **Git integration** — see which files changed, commit, push — all from the sidebar
+- **Extensions** — add AI assistants, linters, formatters, language support
+
+## How to install VS Code
+
+1. Go to [code.visualstudio.com](https://code.visualstudio.com)
+2. Download for your operating system
+3. Install and open it
+
+## Essential extensions to install
+
+Open VS Code → press `Ctrl+Shift+X` (Windows) or `Cmd+Shift+X` (Mac) to open Extensions.
+
+Install these:
+
+- **ESLint** — catches JavaScript/TypeScript errors as you type
+- **Prettier** — formats your code automatically on save
+- **Tailwind CSS IntelliSense** — autocomplete for Tailwind class names
+- **GitLens** — shows who changed each line and when
+
+<EngineeringMindsetBox>
+Set up auto-format on save from day one. In VS Code settings, enable `editor.formatOnSave`. This means you never have to think about indentation again. Clean code is easier to debug.
+</EngineeringMindsetBox>
+
+## The VS Code interface
+
+| Area | What it does |
+|------|-------------|
+| Explorer (left sidebar) | Browse and open files in your project |
+| Editor (center) | Where you write code |
+| Terminal (bottom) | Where you run commands |
+| Source Control (left sidebar) | Git — track changes, commit, push |
+| Extensions (left sidebar) | Add new capabilities |
+
+## Opening your project folder
+
+File → Open Folder → select your project directory.
+
+This is important. VS Code works with a **folder**, not individual files. When you open a folder, VS Code understands your whole project — how files relate, what dependencies exist, and what commands to run.
+
+<VerifyBox>
+- VS Code is installed and opens without error
+- You can open a terminal inside VS Code with `` Ctrl+` `` (backtick)
+- You can create a new file with `Ctrl+N`
+- Extensions panel opens with `Ctrl+Shift+X`
+</VerifyBox>
+
+<CommonMistakeBox>
+- **Opening files instead of folders** — always open the project folder, not a single `.tsx` file
+- **Ignoring red squiggles** — red underlines mean an error. Do not ignore them
+- **Not installing ESLint** — without it, TypeScript errors only show at build time, not while you type
+</CommonMistakeBox>
+
+<NextStepBox steps={[
+  { label: "What is GitHub?", href: "/start-here/what-is-github", description: "Learn how to track and share your code" },
+  { label: "Build your first AI-assisted website", href: "/workflows/01-first-ai-website", description: "Put VS Code to use immediately" }
+]} />

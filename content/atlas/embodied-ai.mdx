@@ -1,0 +1,97 @@
+---
+title: "Embodied AI"
+description: "Embodied AI is the study and engineering of AI systems that exist in and interact with the physical world through sensors, actuators, and real-time feedback loops — not just through text or pixels."
+difficulty: intermediate
+order: 4
+tags: ["robotics", "AI", "sensors", "control", "learning"]
+category: "Cogninoid Atlas"
+---
+
+Embodied AI refers to artificial intelligence systems that are grounded in physical reality. Unlike language models that process text, embodied AI systems receive sensory input from the real world and produce actions that change the physical environment.
+
+<MentalModelBox title="Intelligence requires a body to become useful">
+A chess engine is intelligent about chess but cannot make you coffee. An embodied AI system perceives its environment (camera, lidar, force sensors), reasons about what to do, and acts (motor commands, gripper forces, locomotion). The loop is: sense → model → plan → act → sense again. The physical world is the test.
+</MentalModelBox>
+
+## Why it matters
+
+Most deployed AI today is disembodied — it reads text and writes text. But the majority of valuable work in the physical world (manufacturing, logistics, healthcare, scientific experimentation) requires machines that can manipulate objects, navigate spaces, and respond to unpredictable physical conditions.
+
+Embodied AI is the bridge between digital reasoning and physical capability.
+
+## Fundamental building blocks
+
+<SignalFlowDiagram
+  title="Embodied AI Signal Loop"
+  nodes={[
+    { label: "Sensors", sublabel: "Camera, IMU, Force", color: "cyan" },
+    { label: "Perception", sublabel: "Object detection, state estimation", color: "blue" },
+    { label: "Planning", sublabel: "What to do next", color: "violet" },
+    { label: "Control", sublabel: "Motor commands", color: "blue" },
+    { label: "Actuators", sublabel: "Motors, grippers", color: "cyan" },
+    { label: "Environment", sublabel: "Physical world", color: "green" }
+  ]}
+/>
+
+**Perception** — extracting meaningful information from raw sensor data. Knowing where objects are, what they are, and how fast they are moving.
+
+**State estimation** — maintaining a model of the world and the robot's own position within it (SLAM — simultaneous localisation and mapping).
+
+**Planning** — deciding what sequence of actions will achieve the goal. Can be rule-based, optimisation-based, or learned.
+
+**Control** — executing planned movements through motor commands, accounting for physical dynamics, friction, and disturbances.
+
+**Learning** — improving behaviour from experience. Reinforcement learning from physical interaction. Imitation learning from demonstrations.
+
+## Key scientific questions
+
+- How do robots learn to generalise manipulation skills across different objects?
+- How can a robot recover from unexpected failures in real time?
+- What representations allow efficient transfer of skills across different robot bodies?
+- How much of human embodied intelligence can be learned from video demonstration alone?
+- How do we make robots safe to work alongside humans?
+
+<ResearchFrontierBlock>
+
+Current frontier research directions in Embodied AI:
+
+- **Foundation models for robotics** — models like RT-2 and π₀ that connect vision, language, and motor control in a single network trained on internet-scale data
+- **Dexterous manipulation** — five-fingered hands that can handle arbitrary objects, not just fixed tool-specific grippers
+- **Sim-to-real transfer** — training in simulation and deploying on real hardware with minimal degradation
+- **In-context skill learning** — robots that learn new skills from a few demonstrations at test time, without full retraining
+- **Whole-body control** — coordinating arms, torso, and legs as a unified system
+
+</ResearchFrontierBlock>
+
+## Cogninoid build direction
+
+At Cogninoid Labs, we approach embodied AI through:
+
+1. **Modular robotic platforms** — arms and grippers that are cheap enough to experiment on
+2. **Sensor integration** — IMUs, cameras, force sensors feeding real-time data
+3. **AI control layers** — connecting AI agents to physical motor commands
+4. **Closed-loop verification** — measuring whether the robot actually achieved the goal
+
+## Beginner project
+
+Build a robotic arm that can reach a target position using inverse kinematics.
+
+- **Hardware**: Adeept robotic arm, Arduino or Raspberry Pi Pico
+- **Software**: Position control via PWM signals to servo motors
+- **Goal**: Given (x, y, z) coordinates, compute joint angles and move the arm
+- **Verification**: Does the end effector reach within 5mm of the target?
+
+## Advanced project
+
+Build a pick-and-place system with visual feedback.
+
+- **Hardware**: Robotic arm + overhead camera + 3D-printed gripper
+- **Software**: Object detection → gripper position calculation → motion execution → grasp verification
+- **Goal**: Reliably pick objects from a defined workspace and place them in a target zone
+- **Verification**: Success rate over 20 consecutive trials
+
+<NextStepBox steps={[
+  { label: "Agentic Systems", href: "/atlas/agentic-systems", description: "AI that plans and executes autonomously" },
+  { label: "Human–Machine Interaction", href: "/atlas/human-machine-interaction", description: "The interface between humans and embodied systems" },
+  { label: "Servo Motor", href: "/hardware/servo-motor", description: "The actuator behind most robotic arms" }
+]} />

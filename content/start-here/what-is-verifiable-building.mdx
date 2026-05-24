@@ -1,0 +1,65 @@
+---
+title: "What is Verifiable Building?"
+description: "Verifiable building is the practice of making only changes you can check, test, and confirm work correctly — especially when using AI coding agents. It is the antidote to vibe coding."
+difficulty: beginner
+order: 12
+tags: ["methodology", "AI", "engineering", "verification"]
+prevSlug: what-is-vibe-coding
+---
+
+Verifiable building is a mindset and a set of practices. The core idea: **every step in your process should produce an observable, checkable result.**
+
+When you build with AI coding agents, the speed of change increases dramatically. You can generate 200 lines of code in 30 seconds. Verifiable building ensures that speed does not become a liability.
+
+<MentalModelBox title="Build like a scientist, not like a guesser">
+A scientist does not assume an experiment worked. They measure. They record the result. They compare against what they expected. Verifiable building applies the same discipline to software: after every change, what can you observe? Does it match what you expected?
+</MentalModelBox>
+
+## The four questions of verifiable building
+
+After every significant change — whether you wrote it or an AI agent wrote it — ask:
+
+1. **Does it build?** — Run `npm run build`. No errors is the minimum bar.
+2. **Does it render?** — Open the browser. Does the UI show what you expected?
+3. **Does it behave correctly?** — Click the buttons. Submit the forms. Does it do what it should?
+4. **Did it break anything else?** — Check the pages that existed before your change. Regressions are real.
+
+## What makes a step verifiable
+
+A step is verifiable when:
+
+- You can describe in advance what a passing result looks like
+- You can check the result without relying on the AI's self-report
+- If it fails, you know exactly what to look at
+
+A step is **not** verifiable when:
+
+- You accept the AI's output without reading it
+- You deploy without running a build
+- You test by asking the AI if it thinks it worked
+
+<EngineeringMindsetBox>
+The goal is not slow, careful building. The goal is **fast and trustworthy** building. Verifiable building is actually faster over time — because you catch errors immediately, before they compound into architectural problems that take hours to untangle.
+</EngineeringMindsetBox>
+
+## Verifiable building in practice
+
+**Workflow level**: every workflow has a "How to verify it works" section. Complete it before moving on.
+
+**Commit level**: only commit code that builds cleanly and visually works. Your commit history should be a log of working states.
+
+**Agent level**: after every AI agent session, run `git diff`, read the changes, run `npm run build`, test in the browser. Only then commit.
+
+## Cogninoid Labs build standard
+
+Every project at Cogninoid Labs follows:
+
+- `npm run build` must pass before any commit
+- Every new feature is tested in the browser before pushing
+- AI-generated code is reviewed line by line before committing
+- Deployments are verified at the live URL within 5 minutes of deploying
+
+<NextStepBox steps={[
+  { label: "Review AI-agent changes before commit", href: "/workflows/08-review-agent-changes", description: "The exact workflow" },
+  { label: "Build your first AI-assisted website", href: "/workflows/01-first-ai-website", description: "Apply verifiable building from day one" }
+]} />

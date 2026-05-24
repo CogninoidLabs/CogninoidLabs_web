@@ -1,0 +1,66 @@
+---
+title: "What is an AI Coding Agent?"
+description: "An AI coding agent is an AI system that can read your codebase, write code, run commands, and make changes across multiple files to complete a goal. Understand how they work and how to use them safely."
+difficulty: beginner
+order: 10
+tags: ["AI", "agents", "tools", "Claude Code"]
+nextSlug: what-is-vibe-coding
+---
+
+An AI coding agent is different from a simple chatbot. A chatbot answers questions. An agent can **act** — it reads your files, writes new code, runs terminal commands, edits multiple files, and works toward a goal you describe in plain language.
+
+<MentalModelBox title="An AI coding agent is like a junior developer who reads fast">
+Imagine a developer who can read your entire codebase in seconds, never gets tired, and can make 50 precise file edits without making typos. That is the capability. The limitation: they do not understand your business context, can make confident mistakes, and need you to verify their work.
+</MentalModelBox>
+
+## What agents can do
+
+- Read every file in your project simultaneously
+- Write new components, functions, and pages
+- Refactor existing code across multiple files
+- Run build commands and fix the errors they produce
+- Search the web for documentation
+- Create entire features from a description
+
+## What agents cannot do (reliably)
+
+- Understand what is *appropriate* for your specific users
+- Know whether a feature is actually correct — only that it compiles
+- Catch business logic errors that do not produce TypeScript errors
+- Make good architectural decisions without your guidance
+- Replace your judgment about what to build
+
+## The right way to use an AI coding agent
+
+**Describe the goal, not the steps.**
+
+Instead of: "Create a file called Button.tsx with a className prop..."
+
+Say: "Add a reusable Button component with primary and secondary variants, using our existing cyan/violet colour scheme."
+
+**Review every change before committing.**
+
+An agent that makes 12 file changes in 90 seconds can introduce 3 subtle bugs in the same 90 seconds. Read the diff. Run the build. Test the feature before you push.
+
+<EngineeringMindsetBox>
+The phrase **"verifiable building"** means: every step the agent takes should produce something you can check. A passing build. A visible UI change. A test that passes. If you cannot verify what the agent did, you do not actually know if it worked.
+</EngineeringMindsetBox>
+
+## Claude Code specifically
+
+Claude Code is the AI coding agent built by Anthropic. It runs in your terminal and has access to your entire project. It can read files, write files, run commands, and make multi-step changes.
+
+Key principle: **you are the engineer; Claude Code is a tool that executes.** Every decision about what to build, why, and whether the result is correct — that is your responsibility.
+
+<CommonMistakeBox>
+- **Accepting all changes without reading them** — always read the diff. The agent can be confidently wrong
+- **Describing how instead of what** — tell the agent what outcome you want, not the implementation steps
+- **Not running the build after agent changes** — always run `npm run build` after an agent session
+- **Using agents for decisions** — agents execute; you decide
+</CommonMistakeBox>
+
+<NextStepBox steps={[
+  { label: "What is vibe coding?", href: "/start-here/what-is-vibe-coding", description: "The approach to avoid" },
+  { label: "What is verifiable building?", href: "/start-here/what-is-verifiable-building", description: "The approach to develop" },
+  { label: "Review AI-agent changes before commit", href: "/workflows/08-review-agent-changes", description: "The workflow that protects your codebase" }
+]} />

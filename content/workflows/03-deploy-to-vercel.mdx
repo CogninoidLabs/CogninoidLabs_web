@@ -1,0 +1,128 @@
+---
+title: "Deploy a GitHub Repo to Vercel"
+description: "Connect your GitHub repository to Vercel and get automatic deployments on every push. Full configuration including environment variables, domains, and build settings."
+difficulty: beginner
+order: 3
+tags: ["Vercel", "deployment", "CI/CD", "GitHub"]
+prevSlug: 02-push-to-github
+nextSlug: 04-connect-domain
+---
+
+## Goal
+
+Connect your GitHub repository to Vercel so that every push to `main` automatically deploys your website.
+
+## What you will build
+
+A live deployment pipeline:
+- GitHub repo → Vercel project → live URL
+- Automatic deploys on every push
+- Preview deployments for every pull request
+
+## Why it matters
+
+Manual deployment is error-prone and slow. A continuous deployment pipeline means you spend your time building, not deploying. Push your code — the pipeline does the rest.
+
+<MentalModelBox title="Vercel as a build robot">
+You write and push code. Vercel is a robot that watches your repository. When it sees a new commit on `main`, it runs `npm install` and `npm run build`, takes the output, and distributes it to servers worldwide. The entire process takes about 30 seconds. You do nothing.
+</MentalModelBox>
+
+## Tools needed
+
+- GitHub account with a Next.js project in a repository
+- Vercel account (sign up at [vercel.com](https://vercel.com) — use "Continue with GitHub")
+
+## Step-by-step workflow
+
+<WorkflowStep step={1} title="Import your GitHub repo into Vercel">
+
+1. Go to [vercel.com/new](https://vercel.com/new)
+2. Click **"Import Git Repository"**
+3. Select your GitHub account and find your repo
+4. Click **Import**
+
+</WorkflowStep>
+
+<WorkflowStep step={2} title="Configure the project">
+
+Vercel automatically detects Next.js and sets the correct defaults.
+
+Check the settings:
+- **Framework Preset**: Next.js (auto-detected)
+- **Root Directory**: `.` (your repo root, unless your project is in a subfolder)
+- **Build Command**: `npm run build` (default, correct for most projects)
+- **Output Directory**: `.next` (default, correct)
+
+If your project is in a subfolder (e.g., `cogninoidlabs-web/`), set Root Directory to that subfolder.
+
+</WorkflowStep>
+
+<WorkflowStep step={3} title="Add environment variables">
+
+If your project uses any `.env` variables, add them now. Go to **Environment Variables** and add each one.
+
+Common variables for Next.js projects:
+- `NEXT_PUBLIC_API_URL` — public API endpoint
+- `DATABASE_URL` — database connection string
+- Any API keys your project uses
+
+Variables prefixed with `NEXT_PUBLIC_` are exposed to the browser. All others are server-only.
+
+</WorkflowStep>
+
+<WorkflowStep step={4} title="Click Deploy">
+
+Click **Deploy**. Vercel runs `npm install` and `npm run build`. Watch the build log.
+
+If the build fails, read the error in the log. It is usually one of:
+- A TypeScript error that only appears in strict mode
+- A missing environment variable
+- A dependency that is installed globally on your machine but not in `package.json`
+
+</WorkflowStep>
+
+<WorkflowStep step={5} title="Verify the deployment">
+
+Vercel gives you a URL like `your-project.vercel.app`. Open it. Does it match what you see locally?
+
+Check:
+- Does the homepage load?
+- Do all routes work?
+- Are images showing?
+- Does the browser console show any errors?
+
+</WorkflowStep>
+
+<WorkflowStep step={6} title="Test automatic deployment">
+
+Make a small visible change locally. Update one line of text. Push to GitHub:
+
+```bash
+git add .
+git commit -m "Test automatic deployment"
+git push
+```
+
+Go to your Vercel project dashboard. You should see a new deployment starting. Within 30 seconds, your live URL should show the change.
+
+</WorkflowStep>
+
+<VerifyBox>
+- Vercel project dashboard shows your repository connected
+- First deployment succeeded (green checkmark)
+- Live URL opens your website
+- Pushing a commit triggers a new deployment automatically
+- Build log shows no errors or warnings
+</VerifyBox>
+
+<CommonMistakeBox>
+- **Build passes locally but fails on Vercel** — run `npm run build` locally first. Production builds are strict about TypeScript errors
+- **Environment variables missing** — check every `.env` variable is added in Vercel settings
+- **Wrong root directory** — if your `package.json` is in a subdirectory, set Root Directory in Vercel settings
+- **`node_modules` in the repo** — this slows builds and causes cache issues. Make sure `.gitignore` excludes it
+</CommonMistakeBox>
+
+<NextStepBox steps={[
+  { label: "Connect a Hostinger domain to Vercel", href: "/workflows/04-connect-domain", description: "Use your custom domain" },
+  { label: "Add Google Search Console and sitemap", href: "/workflows/05-search-console-sitemap", description: "Make your site findable on Google" }
+]} />

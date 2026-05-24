@@ -1,0 +1,74 @@
+---
+title: "What is Vercel?"
+description: "Vercel is the hosting platform that takes your GitHub repository and turns it into a live website — automatically, on every push. Learn how it works and why it is the right choice for Next.js projects."
+difficulty: beginner
+order: 3
+tags: ["tools", "deployment", "hosting", "vercel"]
+nextSlug: what-is-frontend
+prevSlug: what-is-github
+---
+
+Vercel is a cloud hosting platform that specialises in deploying frontend applications — especially Next.js, which Vercel created. When you connect your GitHub repository to Vercel, every push to `main` automatically redeploys your website within about 30 seconds.
+
+<MentalModelBox title="Vercel is a factory that builds and ships your website">
+You write code and push it to GitHub. Vercel detects the push, runs `npm run build`, takes the output, and puts it on servers around the world. Visitors get the nearest copy. You never touch a server manually.
+</MentalModelBox>
+
+## What Vercel does for you
+
+- **Builds your project** — runs `npm run build` automatically
+- **Hosts the output** — serves your website globally via CDN
+- **Manages HTTPS** — free SSL certificate, automatically renewed
+- **Handles domains** — point your custom domain to Vercel easily
+- **Preview deployments** — every pull request gets its own preview URL
+- **Edge functions** — serverless API routes, globally distributed
+
+## Free tier limits (for most projects)
+
+| Feature | Free |
+|---------|------|
+| Projects | Unlimited |
+| Bandwidth | 100 GB/month |
+| Serverless function duration | 10 seconds |
+| Custom domains | Unlimited |
+| Team members | 1 (Hobby plan) |
+
+For a startup or personal project, the free tier is more than enough.
+
+## How the deploy process works
+
+```
+You write code
+    ↓
+git push to GitHub
+    ↓
+Vercel detects the push (webhook)
+    ↓
+Vercel runs: npm install + npm run build
+    ↓
+Vercel serves the output on its global network
+    ↓
+Your domain now shows the new version
+```
+
+<EngineeringMindsetBox>
+Always check the Vercel build logs when a deployment fails. The error there is usually more specific than what you see locally. Go to your project on vercel.com → Deployments → click the failed deployment → View Logs.
+</EngineeringMindsetBox>
+
+<VerifyBox>
+- You have a Vercel account (sign up with GitHub at vercel.com)
+- A test project is connected to Vercel and shows a live URL
+- Pushing to GitHub triggers a new deployment automatically
+- The deployment log shows no errors
+</VerifyBox>
+
+<CommonMistakeBox>
+- **Missing environment variables** — if your project uses `.env` variables, add them in Vercel's project settings under Environment Variables
+- **Build errors on Vercel but not locally** — usually caused by TypeScript errors that only appear in strict mode. Run `npm run build` locally before pushing
+- **Wrong root directory** — if your `package.json` is not in the repo root, set the root directory in Vercel project settings
+</CommonMistakeBox>
+
+<NextStepBox steps={[
+  { label: "Deploy GitHub repo to Vercel", href: "/workflows/03-deploy-to-vercel", description: "Full step-by-step workflow" },
+  { label: "What is deployment?", href: "/start-here/what-is-deployment", description: "Understand what happens during a deploy" }
+]} />

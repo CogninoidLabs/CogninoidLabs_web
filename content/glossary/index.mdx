@@ -1,0 +1,65 @@
+---
+title: "Glossary"
+description: "Key terms used across Cogninoid Labs — from electronics to AI to software engineering."
+order: 1
+---
+
+A reference for terms used across Cogninoid Labs. Terms are grouped by domain.
+
+## Software & Web
+
+**Repository (repo)** — A project folder tracked by Git. Contains the full history of every file change.
+
+**Commit** — A saved snapshot of your code at a specific point in time. Includes a message describing what changed.
+
+**Branch** — A parallel version of your repository. Work on a branch without affecting `main`.
+
+**Deployment** — The process of taking your built code and making it available on the internet via a hosting provider.
+
+**Environment variable** — A configuration value stored outside your code (e.g., API keys). Set in `.env` files locally, and in hosting provider settings for production.
+
+**Build** — The process of compiling and optimising your code for production. In Next.js: `npm run build`.
+
+**TypeScript** — A typed superset of JavaScript that catches errors at compile time instead of runtime.
+
+**MDX** — Markdown extended with JSX. Write rich documentation with embedded interactive components.
+
+## AI & Agents
+
+**AI coding agent** — An AI system with tool access that can read and edit files, run commands, and complete multi-step coding tasks.
+
+**Vibe coding** — Writing code by accepting AI output without verification, review, or understanding. Produces fast results that often break in unpredictable ways.
+
+**Verifiable building** — The practice of confirming every change works correctly before moving on. Every step produces an observable, checkable result.
+
+**Inference** — Running a trained AI model to produce output. Distinct from training.
+
+**Fine-tuning** — Adapting a pre-trained model to a specific task using a smaller, domain-specific dataset.
+
+## Electronics & Hardware
+
+**GPIO** — General Purpose Input/Output. Pins on a microcontroller that can be set HIGH or LOW programmatically.
+
+**PWM** — Pulse Width Modulation. A way to simulate analogue output using digital pins by rapidly switching between HIGH and LOW.
+
+**I2C** — A two-wire communication protocol (SDA + SCL) for connecting multiple sensors and devices to a microcontroller.
+
+**SPI** — Serial Peripheral Interface. A four-wire communication protocol, faster than I2C but uses more pins.
+
+**IMU** — Inertial Measurement Unit. A sensor that measures acceleration, rotation rate, and sometimes magnetic field.
+
+**PID controller** — Proportional-Integral-Derivative controller. A feedback control algorithm that reduces error between a desired state and measured state.
+
+**Debounce** — Filtering out noise from mechanical switches that briefly flicker between states when pressed.
+
+## Robotics
+
+**End effector** — The tool at the tip of a robotic arm — gripper, welding torch, camera, etc.
+
+**Degrees of freedom (DoF)** — The number of independent joint axes in a robotic system. More DoF = more flexibility.
+
+**Inverse kinematics (IK)** — Computing joint angles given a desired end effector position.
+
+**SLAM** — Simultaneous Localisation And Mapping. Building a map of an environment while simultaneously tracking position within it.
+
+**Actuator** — A component that creates physical motion — servo motor, DC motor, solenoid, pneumatic cylinder.

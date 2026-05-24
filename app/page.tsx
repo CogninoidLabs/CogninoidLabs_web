@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { CheckCircle, Code2, Bot, Brain, Cpu, Activity, Layers, ArrowRight } from "lucide-react";
+import { CheckCircle, Code2, Bot, Brain, Cpu, Activity, Layers, ArrowRight, BookOpen, Zap, Globe, GitBranch } from "lucide-react";
 import { GithubIcon } from "@/components/BrandIcons";
 import Hero from "@/components/Hero";
 import FeatureCard from "@/components/FeatureCard";
@@ -132,6 +132,122 @@ export default function HomePage() {
     <main className="relative">
       <Hero />
 
+      {/* ── Learning Hub ────────────────────────────────────────────────── */}
+      <section className="py-24 sm:py-32 border-t border-white/[0.05]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div {...fadeUp()} className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-12">
+            <div>
+              <SectionLabel>Learning Hub</SectionLabel>
+              <h2 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">
+                From vibe coding to verifiable building.
+              </h2>
+              <p className="text-slate-500 mt-3 max-w-lg text-sm leading-relaxed">
+                Structured resources for building real AI and hardware systems — concepts, workflows, and deep dives.
+              </p>
+            </div>
+            <Link
+              href="/roadmap"
+              className="group flex items-center gap-1.5 text-sm text-slate-500 hover:text-cyan-400 transition-colors flex-shrink-0"
+            >
+              View roadmap
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+            </Link>
+          </motion.div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[
+              {
+                icon: BookOpen,
+                href: "/start-here",
+                label: "Start Here",
+                tag: "Foundation",
+                description: "Core tools and concepts every builder needs: VS Code, GitHub, Vercel, AI agents.",
+                accent: "text-cyan-400",
+                border: "border-cyan-500/15",
+                hover: "hover:border-cyan-500/30",
+              },
+              {
+                icon: Zap,
+                href: "/workflows",
+                label: "Workflow Library",
+                tag: "Step-by-Step",
+                description: "Complete build workflows — from blank slate to deployed, verified product.",
+                accent: "text-blue-400",
+                border: "border-blue-500/15",
+                hover: "hover:border-blue-500/30",
+              },
+              {
+                icon: Globe,
+                href: "/atlas",
+                label: "Cogninoid Atlas",
+                tag: "Concepts",
+                description: "Deep dives into embodied AI, autonomous systems, and the science behind real robots.",
+                accent: "text-violet-400",
+                border: "border-violet-500/15",
+                hover: "hover:border-violet-500/30",
+              },
+              {
+                icon: Cpu,
+                href: "/hardware",
+                label: "Hardware Atlas",
+                tag: "Electronics",
+                description: "Every component in physical AI systems — specs, pinouts, wiring, and code.",
+                accent: "text-teal-400",
+                border: "border-teal-500/15",
+                hover: "hover:border-teal-500/30",
+              },
+              {
+                icon: GitBranch,
+                href: "/projects",
+                label: "Build Logs",
+                tag: "Projects",
+                description: "Real builds documented from concept to working code. See what breaks and what ships.",
+                accent: "text-orange-400",
+                border: "border-orange-500/15",
+                hover: "hover:border-orange-500/30",
+              },
+              {
+                icon: Brain,
+                href: "/roadmap",
+                label: "Learning Roadmap",
+                tag: "Path",
+                description: "A guided path from beginner builder to verifiable engineer. See the full journey.",
+                accent: "text-pink-400",
+                border: "border-pink-500/15",
+                hover: "hover:border-pink-500/30",
+              },
+            ].map((item, i) => {
+              const Icon = item.icon;
+              return (
+                <motion.div key={item.href} {...fadeUp(i * 0.06)}>
+                  <Link
+                    href={item.href}
+                    className={`group flex flex-col bg-[#07070f] border ${item.border} ${item.hover} rounded-2xl p-5 transition-all duration-200 hover:-translate-y-0.5 relative overflow-hidden h-full`}
+                  >
+                    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <div className="flex items-start justify-between mb-3">
+                      <div className={`w-9 h-9 rounded-lg bg-white/[0.04] border border-white/[0.07] flex items-center justify-center flex-shrink-0`}>
+                        <Icon className={`w-4 h-4 ${item.accent}`} />
+                      </div>
+                      <span className="text-[10px] text-slate-700 font-mono border border-white/[0.05] px-2 py-0.5 rounded">
+                        {item.tag}
+                      </span>
+                    </div>
+                    <h3 className={`text-white font-semibold text-sm mb-1.5 group-hover:${item.accent} transition-colors`}>
+                      {item.label}
+                    </h3>
+                    <p className="text-slate-600 text-[12px] leading-relaxed flex-1 mb-3">{item.description}</p>
+                    <div className={`flex items-center gap-1 text-[11px] ${item.accent} opacity-0 group-hover:opacity-100 transition-opacity`}>
+                      Explore <ArrowRight className="w-3 h-3" />
+                    </div>
+                  </Link>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
       {/* ── Mission ─────────────────────────────────────────────────────── */}
       <section className="py-24 sm:py-32 border-t border-white/[0.05]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -232,7 +348,7 @@ export default function HomePage() {
                     initial={{ opacity: 0, x: -16 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
-                    transition={{ delay: i * 0.08, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                    transition={{ delay: i * 0.08, duration: 0.45 }}
                     className="flex items-start gap-3"
                   >
                     <CheckCircle className="w-4 h-4 text-cyan-400 flex-shrink-0 mt-0.5" strokeWidth={2} />
@@ -247,7 +363,7 @@ export default function HomePage() {
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: 0.55 }}
               className="relative"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/8 to-violet-600/8 rounded-3xl blur-2xl" />
