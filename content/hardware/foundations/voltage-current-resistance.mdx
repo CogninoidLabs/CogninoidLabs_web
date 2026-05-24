@@ -1,0 +1,147 @@
+---
+title: "Voltage, Current & Resistance"
+description: "The three fundamental quantities of electrical circuits. Every hardware problem — from a burnt-out LED to an Arduino that won't power on — traces back to these three quantities and the relationship between them."
+difficulty: beginner
+order: 1
+tags: ["foundations", "Ohm's Law", "electronics", "circuit theory"]
+category: "Hardware Atlas"
+subcategory: "foundations"
+nextSlug: power-and-ground
+---
+
+<LearningObjectives>
+- What voltage, current, and resistance physically represent
+- Ohm's Law and how to use it to calculate values in a real circuit
+- How to choose a current-limiting resistor for an LED
+- What happens when you exceed a component's voltage or current rating
+- How to measure voltage and current with a multimeter
+</LearningObjectives>
+
+## What are voltage, current, and resistance?
+
+These are the three fundamental quantities of electrical circuits. Every electrical component, every circuit failure, and every design decision starts here.
+
+**Voltage (V)** — Electric potential difference between two points, measured in Volts (V). Voltage is the pressure that pushes electrons through a conductor. A 5V supply has 5 joules of energy available per coulomb of charge. Without a voltage difference, charge does not flow.
+
+**Current (I)** — The flow of electric charge, measured in Amperes (A). One ampere is one coulomb of charge passing a point per second. Current is what actually does work — it heats resistors, spins motors, lights LEDs.
+
+**Resistance (R)** — Opposition to current flow, measured in Ohms (Ω). Resistance converts electrical energy to heat (P = I²R). Every material has resistance. Conductors have very low resistance; insulators have very high resistance.
+
+<MentalModelBox title="Water pipe analogy — voltage is pressure, current is flow rate, resistance is pipe narrowness">
+Imagine water flowing through a pipe. Voltage is the water pressure (higher pressure → more force). Current is the flow rate (litres per second). Resistance is how narrow the pipe is — a narrow pipe restricts flow. Increase pressure (voltage) → flow rate (current) increases. Narrow the pipe (more resistance) → flow rate decreases. This analogy breaks down at high frequencies and quantum effects, but for DC circuits it is precise enough to design real hardware.
+</MentalModelBox>
+
+## Ohm's Law
+
+The fundamental relationship between voltage, current, and resistance:
+
+```
+V = I × R
+```
+
+Rearranged:
+- `I = V / R` — current increases as voltage increases, decreases as resistance increases
+- `R = V / I` — resistance equals voltage divided by current
+
+This single equation solves the majority of basic circuit problems.
+
+**Example: LED current-limiting resistor**
+
+An LED has a forward voltage drop of approximately 2V (red) and should be limited to 20 mA (0.02 A). Powering from a 5V Arduino:
+
+```
+V_resistor = V_supply - V_LED = 5V - 2V = 3V
+R = V / I = 3V / 0.02A = 150 Ω
+```
+
+Use a 150Ω or 220Ω resistor (next standard value up) to safely limit LED current.
+
+## Power
+
+Power dissipated in a component:
+
+```
+P = V × I = I² × R = V² / R
+```
+
+A resistor dissipating more power than its rating (typically 0.25W for small resistors) will overheat and fail. A motor drawing 1A at 12V dissipates 12W as mechanical work plus heat.
+
+## Key parameters to check for every component
+
+<SpecTable title="Electrical Ratings to Verify Before Use">
+  <SpecRow parameter="Maximum voltage" value="Component-specific" notes="Exceeding this destroys the component — capacitor explosion, transistor breakdown, IC damage" />
+  <SpecRow parameter="Maximum current" value="Component-specific" notes="Exceeding this causes overheating — resistor burns, wire melts, GPIO pin destroyed" />
+  <SpecRow parameter="Power rating" value="Component-specific" notes="P = V × I. A 0.25W resistor cannot safely dissipate 1W." />
+  <SpecRow parameter="Logic voltage" value="3.3V or 5V" notes="Connecting 5V logic to 3.3V device input may damage the device" />
+</SpecTable>
+
+## How to measure with a multimeter
+
+<TestProcedureBox title="Multimeter Measurements">
+  <TestStep step={1}>
+    **Measure voltage:** Set multimeter to DC Volts (V with straight line). Touch red probe to the higher potential point, black probe to ground. The reading is the voltage difference. Never measure voltage in series — measure across two points in parallel with the circuit.
+  </TestStep>
+  <TestStep step={2}>
+    **Measure current:** Set multimeter to DC Amps (A). Current measurement requires breaking the circuit: disconnect one end of a wire and insert the multimeter in series. Red probe to the incoming current, black probe to where it goes next. Warning: measuring voltage with the meter set to Amps mode will blow the fuse and may damage the meter.
+  </TestStep>
+  <TestStep step={3}>
+    **Measure resistance:** Set to Ohms (Ω). Touch probes across the component (component must be unpowered and disconnected from circuit — in-circuit resistance measurements are unreliable). Read the value.
+  </TestStep>
+  <TestStep step={4}>
+    **Continuity test:** Set to continuity mode (diode symbol or beep symbol). Touch probes across a wire or connection you want to verify is connected. Beep = connected. Silence = open circuit (broken wire or bad solder joint).
+  </TestStep>
+  <TestStep step={5}>
+    **Check a power supply:** Connect red probe to the supply positive terminal, black to negative. Confirm you read the expected voltage. A freshly charged 9V battery reads ~9.2V; under load it drops. This test diagnoses dead batteries and faulty regulators instantly.
+  </TestStep>
+</TestProcedureBox>
+
+## Common mistakes
+
+<CommonMistakeBox>
+- **Connecting LED without a resistor** — the LED's forward voltage drop is approximately 2V. Connecting directly to 5V passes the remaining 3V across near-zero LED resistance, producing catastrophic current. The LED burns out in milliseconds.
+- **Confusing voltage and current** — voltage is not current. A 12V supply provides 12V but may supply any current (up to its rated limit). The actual current is determined by the load resistance (Ohm's Law).
+- **Thinking higher voltage always means more current** — not if the resistance increases proportionally. Current = Voltage / Resistance. If you increase both V and R proportionally, current stays the same.
+- **Measuring current with probes in voltage position** — meters set to measure current must be connected in series with the circuit. Connecting in parallel (as you would for voltage) while set to Amps puts near-zero resistance across the circuit, causing large current through the meter. This blows the fuse at minimum; at maximum it can damage the circuit.
+- **Ignoring power dissipation** — a 1kΩ resistor at 12V dissipates P = V²/R = 144/1000 = 0.144W — within a 0.25W rating. But at 24V it dissipates 0.576W — beyond rating and will overheat.
+</CommonMistakeBox>
+
+<FailureSignsBox>
+- **Burning smell from a component** — power dissipation exceeds rating; something is drawing too much current
+- **Component very hot after a few seconds** — same cause; identify which component with your finger (carefully — do not touch if it might be a high-voltage supply) or an infrared thermometer
+- **LED very dim or not lighting** — resistance is too high; measure voltage across LED to confirm ~2V drop
+- **LED very bright and quickly dies** — no current-limiting resistor, or resistor value too low
+- **Arduino resets when you connect a motor** — motor inrush current causes a voltage drop on the power rail below the microcontroller's minimum operating voltage (brownout reset)
+- **Circuit works on bench but fails in robot** — battery voltage drops under load; measure battery voltage while the motors are running, not at rest
+</FailureSignsBox>
+
+## Robotics and AI use cases
+
+<AIUseCaseBox title="Voltage, Current, Resistance in Physical AI Systems">
+
+- **Power budget calculation** — before building a robot, sum all component currents: MCU (50 mA) + 2× servos (500 mA) + IMU (5 mA) + ESP32 (240 mA) = ~800 mA minimum. Size battery accordingly (3× for headroom = 2400 mAh minimum for 1 hour runtime).
+- **Level shifting** — ESP32 and Raspberry Pi use 3.3V logic; Arduino and many sensors use 5V. A 5V signal into a 3.3V input exceeds the maximum voltage (V_max = 3.6V). A voltage divider (two resistors) or level shifter IC solves this.
+- **Current sensing for motor fault detection** — placing a low-value sense resistor (0.1Ω) in series with a motor and measuring the voltage across it (V = I × R = I × 0.1) gives real-time motor current. Spike in current = stall detection.
+- **Battery management** — LiPo cells provide 3.7V nominal, 4.2V fully charged, 3.0V cutoff. Discharging below 3.0V permanently damages the cell. Voltage measurement is the primary battery health indicator.
+
+</AIUseCaseBox>
+
+## Beginner project — Measure your components
+
+Use a multimeter to characterise three different resistors from your kit:
+1. Predict the value from the colour code
+2. Measure with the meter
+3. Connect to 5V and measure actual current — compare to Ohm's Law prediction
+
+**Key learning:** Colour code reading, tolerance, how close real components are to their rated values.
+
+## Advanced project — LED brightness control with PWM
+
+Wire 4 LEDs with individual current-limiting resistors. Control each LED's brightness from the Serial Monitor by typing a value 0–255. Use `analogWrite()` (PWM). Calculate: if the LED draws 20 mA at 255, how much power does it consume at 128? Measure with the multimeter to verify your calculation.
+
+**Key learning:** PWM as effective voltage control, power calculation, tolerance measurement.
+
+<NextStepBox title="Next foundations">
+  <NextStep href="/hardware/power-and-ground" label="Power and Ground" description="How power rails work and why common ground is critical" />
+  <NextStep href="/hardware/arduino" label="Arduino" description="Your first microcontroller — apply these fundamentals immediately" />
+  <NextStep href="/hardware/multimeter" label="Multimeter" description="The most important tool in any electronics lab" />
+</NextStepBox>

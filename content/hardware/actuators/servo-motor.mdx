@@ -1,0 +1,288 @@
+---
+title: "Servo Motor"
+description: "A servo motor is a closed-loop actuator that holds a precise angular position. Used in robotic joints, grippers, steering mechanisms, and any system where position — not just speed — must be controlled."
+difficulty: beginner
+order: 1
+tags: ["actuator", "PWM", "robotics", "joint control"]
+category: "Hardware Atlas"
+subcategory: "actuators"
+nextSlug: dc-motor
+---
+
+<LearningObjectives>
+- How a servo motor uses internal feedback to hold a commanded angle
+- The PWM protocol that controls servo position
+- SG90 specifications, wiring, and safe operating limits
+- How to write smooth, controlled motion code that avoids mechanical shock
+- How servos fit into a robotic manipulator or bipedal system
+</LearningObjectives>
+
+## What is a servo motor?
+
+A servo motor is an actuator that accepts a commanded position and uses internal feedback to hold that position against external forces. Unlike a DC motor — which spins freely at a speed proportional to voltage — a servo does not move continuously. It moves to a specific angle and stays there.
+
+The word *servo* comes from the Latin *servus* (servant) and entered engineering through Norbert Wiener's cybernetics work in the 1940s. The feedback principle — compare actual state to desired state, correct the error — is the foundation of all closed-loop control systems, from thermostats to space telescopes.
+
+<MentalModelBox title="The servo is the simplest closed-loop system you can hold in your hand">
+Inside every servo is a three-component feedback loop: a motor that can drive the shaft, a potentiometer that reads the current angle, and a control circuit that compares the two. When you command 90°, the circuit drives the motor until the pot reads 90°, then cuts power. If something pushes the shaft away, the circuit detects the error and corrects it. This is the same principle used in every industrial robot arm joint — the servo just makes it visible at a scale you can touch.
+</MentalModelBox>
+
+## Why it matters for AI builders
+
+In robotic manipulation, every joint that must hold a position against gravity uses a servo or its industrial equivalent. The diffusion policy and other modern robot learning algorithms output joint angle targets — a servo is what executes those targets in the physical world.
+
+Key roles in physical AI systems:
+- **Manipulator joints** — each degree of freedom in a robot arm is one servo
+- **Gripper mechanism** — open/close commands map directly to servo angle
+- **Camera pan/tilt** — gaze direction control for visual systems
+- **Bipedal balance** — ankle and hip servos respond to IMU feedback
+- **Soft robotics** — servo-actuated tendons drive compliant finger structures
+
+## Working principle
+
+Inside an SG90 (and all hobby servos):
+
+1. **Motor + gearbox** — a small brushed DC motor drives a plastic gear train that increases torque and reduces speed
+2. **Potentiometer** — mechanically coupled to the output shaft; its resistance encodes current angle (0°–180°)
+3. **Control IC** — compares the pot voltage (actual position) to the PWM pulse width (commanded position), drives the motor to minimise the error
+
+<SignalFlowDiagram title="Servo Control Loop">
+  <FlowNode label="MCU" sublabel="PWM signal" color="cyan" />
+  <FlowNode label="Control IC" sublabel="Pulse → angle target" color="blue" />
+  <FlowNode label="H-Bridge" sublabel="Drive motor" color="violet" />
+  <FlowNode label="Gearbox" sublabel="Torque × speed" color="slate" />
+  <FlowNode label="Output shaft" sublabel="Physical angle" color="orange" />
+  <FlowNode label="Potentiometer" sublabel="Angle feedback" color="green" />
+</SignalFlowDiagram>
+
+**PWM encoding.** The control IC reads the pulse width of the incoming PWM signal:
+- 1.0 ms pulse → 0°
+- 1.5 ms pulse → 90° (centre)
+- 2.0 ms pulse → 180°
+- Period: 20 ms (50 Hz repetition rate)
+
+The pulse width, not the duty cycle percentage, encodes the angle.
+
+<ComponentDiagram
+  component="servo"
+  title="SG90 Servo Motor — Component Diagram"
+  caption="Output shaft and control horn at top. Gear train visible through housing. Three-wire JST connector: red = VCC (4.8–6V), brown/black = GND, orange = PWM signal. PWM waveform shows 1–2 ms pulse width at 20 ms period."
+/>
+
+## Key parameters (SG90)
+
+<SpecTable title="SG90 Servo Specifications">
+  <SpecRow parameter="Operating voltage" value="4.8 – 6.0 V" notes="Do NOT power from Arduino 5V pin at load" />
+  <SpecRow parameter="Stall torque" value="1.8 kg·cm @ 4.8V" notes="2.2 kg·cm @ 6V" />
+  <SpecRow parameter="No-load speed" value="0.1 s / 60°" notes="At 4.8V — faster at 6V" />
+  <SpecRow parameter="PWM pulse width" value="1.0 – 2.0 ms" notes="Varies by manufacturer — may be 0.5–2.5 ms" />
+  <SpecRow parameter="PWM frequency" value="50 Hz" notes="20 ms period — some servos accept 333 Hz" />
+  <SpecRow parameter="Angular range" value="0° – 180°" notes="Mechanical hard stops — do not command past limits" />
+  <SpecRow parameter="Gear material" value="Plastic (nylon)" notes="Metal gear versions available — more reliable under load" />
+  <SpecRow parameter="Weight" value="9 g" notes="14 g with metal gears" />
+  <SpecRow parameter="Stall current" value="~650 mA" notes="At stall — wire directly to power, not MCU pin" />
+</SpecTable>
+
+## Pinout
+
+<PinoutBox title="SG90 Connector Pins">
+  <PinRow pin="1" label="VCC" type="power" description="4.8–6V supply — connect to external power rail, not Arduino 5V" />
+  <PinRow pin="2" label="GND" type="ground" description="Ground — must share ground with Arduino (common ground)" />
+  <PinRow pin="3" label="SIG" type="digital" description="PWM signal — connect to Arduino digital pin (any pin supporting digitalWrite)" />
+</PinoutBox>
+
+**Wire colour conventions:**
+- Red or orange = VCC
+- Brown or black = GND
+- Yellow or orange = Signal (varies — check your specific servo's datasheet)
+
+## Wiring
+
+<WiringBox title="SG90 → Arduino Uno Wiring">
+  <WireRow from="SG90 VCC (red)" to="External 5V rail" color="red" note="Do not use Arduino 5V for multiple servos — each can draw 650 mA stall" />
+  <WireRow from="SG90 GND (brown)" to="Arduino GND + power rail GND" color="black" note="Common ground essential — omitting this causes erratic behaviour" />
+  <WireRow from="SG90 SIG (orange)" to="Arduino pin 9" color="yellow" note="Any digital pin works — pin 9 is conventional for Servo library" />
+</WiringBox>
+
+**Power note.** A single SG90 at light load can run from the Arduino 5V pin. Two or more servos under load will brownout the Arduino. Always use an external power source (4× AA batteries or a bench supply) for multiple servos, and ensure a common ground between the Arduino and the power rail.
+
+## Code
+
+### Basic position control
+
+```cpp
+#include <Servo.h>
+
+Servo myServo;
+
+void setup() {
+  myServo.attach(9);    // attach servo to pin 9
+  myServo.write(90);    // move to centre position at startup
+  delay(500);           // allow servo to reach position
+}
+
+void loop() {
+  myServo.write(0);     // go to 0 degrees
+  delay(1000);
+  myServo.write(90);    // go to 90 degrees (centre)
+  delay(1000);
+  myServo.write(180);   // go to 180 degrees
+  delay(1000);
+}
+```
+
+### Smooth sweep — avoiding mechanical shock
+
+Commanding a servo from 0° to 180° in one step causes maximum mechanical stress and current spike. Ramp the angle instead:
+
+```cpp
+#include <Servo.h>
+
+Servo myServo;
+
+void smoothMove(Servo &s, int from, int to, int stepDelay = 15) {
+  int step = (to > from) ? 1 : -1;
+  for (int pos = from; pos != to; pos += step) {
+    s.write(pos);
+    delay(stepDelay);   // 15ms per degree = ~2.7s for 180°
+  }
+  s.write(to);
+}
+
+void setup() {
+  myServo.attach(9);
+  myServo.write(90);
+  delay(500);
+}
+
+void loop() {
+  smoothMove(myServo, 90, 0);
+  delay(500);
+  smoothMove(myServo, 0, 180);
+  delay(500);
+  smoothMove(myServo, 180, 90);
+  delay(500);
+}
+```
+
+### Joystick to servo mapping
+
+```cpp
+#include <Servo.h>
+
+Servo myServo;
+const int JOY_PIN = A0;
+
+void setup() {
+  myServo.attach(9);
+}
+
+void loop() {
+  int raw = analogRead(JOY_PIN);         // 0 – 1023
+  int angle = map(raw, 0, 1023, 0, 180); // scale to servo range
+  myServo.write(angle);
+  delay(20);
+}
+```
+
+## Test procedure
+
+<TestProcedureBox title="Servo Verification">
+  <TestStep step={1}>
+    Wire servo per the wiring section. Power the servo from external 5V or 4× AA batteries, not the Arduino 5V pin.
+  </TestStep>
+  <TestStep step={2}>
+    Upload the basic position control sketch. Observe the servo sweep to 0°, 90°, and 180° with 1-second pauses.
+    A healthy servo will reach each position cleanly without buzzing or hunting.
+  </TestStep>
+  <TestStep step={3}>
+    Manually resist the output shaft while it holds 90°. You should feel torque resisting your force.
+    The motor will briefly spike current as it corrects — this is normal closed-loop behaviour.
+  </TestStep>
+  <TestStep step={4}>
+    Open Serial Monitor and add `Serial.println(myServo.read())` to verify the commanded angle is what the library reports.
+  </TestStep>
+  <TestStep step={5}>
+    Test the full range: command 0° and check for mechanical hard-stop contact (buzzing at limit).
+    If the servo buzzes continuously at 0° or 180°, your actual range is narrower than 0–180 — adjust your minimum and maximum pulse widths.
+  </TestStep>
+</TestProcedureBox>
+
+## Common mistakes
+
+<CommonMistakeBox>
+- **Powering multiple servos from Arduino 5V** — each servo draws up to 650 mA stall current. Three servos can draw 2 A, which is 4× the Arduino's 5V regulator limit. Use external power.
+- **Missing common ground** — if the servo and Arduino have separate power but no shared GND, the PWM signal has no reference and the servo behaves erratically or does not move.
+- **Commanding past mechanical limits** — servos have internal hard stops. Commanding 0° when the mechanical limit is 5° causes the motor to stall against the stop, drawing maximum current and overheating.
+- **Using `delay()` in the main loop** — delay() blocks all other code. Use `millis()` for non-blocking servo updates in multi-sensor systems.
+- **Ignoring pulse width variation** — cheap servos often respond to 0.5–2.5 ms rather than the standard 1–2 ms. Use `myServo.writeMicroseconds(1500)` for precise control.
+</CommonMistakeBox>
+
+<FailureSignsBox>
+- **Continuous buzzing / humming at rest** — the servo is hunting: PWM noise, imprecise pulse width, or mechanical binding is preventing it from reaching the target position
+- **Erratic random movement** — missing common ground, or signal line length too long without shielding
+- **No response to commands** — check VCC (must be 4.8–6V), check common ground, check that `myServo.attach()` was called before `myServo.write()`
+- **Servo moves then immediately returns** — two devices fighting for control of the same pin; check for conflicting `Servo` objects
+- **Arduino resets when servo moves** — brownout: servo is drawing too much current from the Arduino power rail, dropping the voltage below the reset threshold
+- **Stripped gears** — plastic gears fail under shock loads or when commanded against hard stops repeatedly; upgrade to metal gear version
+</FailureSignsBox>
+
+## Robotics and AI use cases
+
+<AIUseCaseBox title="Servo Motors in Physical AI Systems">
+
+- **Robot arm joints** — each degree of freedom (DOF) in a robotic manipulator maps to one servo. A 6-DOF arm requires 6 servos, each receiving angle targets from the inverse kinematics solver.
+- **Diffusion policy execution** — modern imitation learning algorithms (Chi et al. 2023) output joint angle trajectories that are executed directly as servo write commands at 10–50 Hz.
+- **Gripper control** — finger opening width is commanded as a servo angle. Vision models predict grasp pose; the gripper servo executes it.
+- **Head/camera pan-tilt** — visual attention control: a tracking algorithm computes where to look, servo commands orient the camera.
+- **Bipedal balance** — ankle servos counteract IMU-measured tilt using a PD controller, implementing real-time balance.
+- **Tendon-driven fingers** — servo reels a cable attached to a soft finger, enabling compliant grasping.
+
+</AIUseCaseBox>
+
+## Beginner project — Potentiometer-controlled servo
+
+Control servo angle by turning a knob. This is the most fundamental human-in-the-loop motor control circuit.
+
+**Components:** Arduino Uno, SG90 servo, 10kΩ potentiometer, external 5V power, breadboard, jumper wires.
+
+**Goal:** Turning the pot from 0 to full maps the servo from 0° to 180°. Smooth, proportional response with no jitter.
+
+**Key learning:** `analogRead()` → `map()` → `myServo.write()` — the canonical sensor-to-actuator pipeline.
+
+## Advanced project — 2-DOF pan-tilt face tracker
+
+Mount two servos in a pan-tilt bracket with a camera. Run a face detection model (OpenCV `haarcascade_frontalface_default`) on a computer, send the face centroid coordinates over USB serial to Arduino, and use PD control to minimise the offset between the face position and the image centre.
+
+**Components:** Arduino Uno, 2× SG90 servos, pan-tilt bracket, USB camera, laptop running Python/OpenCV.
+
+**Key learning:** Serial communication bridge, PD control loop, coordinate frame transformation, non-blocking servo updates.
+
+```python
+# Python side — send servo commands over serial
+import cv2, serial, time
+
+ser = serial.Serial('/dev/ttyUSB0', 9600)
+cap = cv2.VideoCapture(0)
+face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+
+while True:
+    ret, frame = cap.read()
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    faces = face_cascade.detectMultiScale(gray, 1.1, 4)
+    if len(faces):
+        x, y, w, h = faces[0]
+        cx = x + w // 2   # face centre x
+        cy = y + h // 2   # face centre y
+        pan  = int(cx / frame.shape[1] * 180)
+        tilt = int(cy / frame.shape[0] * 180)
+        ser.write(f"{pan},{tilt}\n".encode())
+    time.sleep(0.05)
+```
+
+<NextStepBox title="Next components">
+  <NextStep href="/hardware/dc-motor" label="DC Motor" description="Continuous rotation actuator for wheels and drivetrains" />
+  <NextStep href="/hardware/motor-driver" label="Motor Driver (L298N)" description="How to drive DC motors safely from a microcontroller" />
+  <NextStep href="/hardware/arduino" label="Arduino" description="Microcontroller that generates the PWM signal" />
+  <NextStep href="/hardware/imu-sensor" label="IMU Sensor" description="Add motion feedback to servo-based systems" />
+</NextStepBox>

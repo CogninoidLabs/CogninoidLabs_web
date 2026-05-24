@@ -1,0 +1,297 @@
+---
+title: "Motor Driver (L298N)"
+description: "The L298N is a dual H-bridge motor driver IC that allows a microcontroller to control two DC motors or one stepper motor. It bridges the logic voltage of a microcontroller to the power requirements of motors."
+difficulty: beginner
+order: 1
+tags: ["component", "motor driver", "H-bridge", "PWM", "robotics"]
+category: "Hardware Atlas"
+subcategory: "components"
+nextSlug: dc-motor
+---
+
+<LearningObjectives>
+- What an H-bridge is and why it is necessary to drive DC motors
+- How the L298N maps logic control pins to motor direction and speed
+- Safe wiring of motor power, logic power, and shared ground
+- PWM speed control via the Enable pins
+- The electrical limitations of the L298N (voltage drop, heat dissipation) and when to use alternatives
+</LearningObjectives>
+
+## What is a motor driver?
+
+A motor driver is an integrated circuit that uses power transistors (or MOSFETs) in an H-bridge configuration to deliver high current to a motor while being controlled by low-current logic signals from a microcontroller.
+
+The L298N is a classic bipolar H-bridge IC manufactured by STMicroelectronics, first released in 1994 and still the most common motor driver in educational robotics. Each H-bridge can source up to 2 A continuously per channel, making it suitable for most hobby DC motors.
+
+<MentalModelBox title="An H-bridge is four switches arranged so current can flow through a motor in either direction">
+Draw four switches (transistors) in an H shape with the motor in the centre crossbar. Close the top-left and bottom-right switches: current flows left-to-right through the motor — it spins forward. Close the top-right and bottom-left switches: current flows right-to-left — motor reverses. Close both top switches or both bottom switches: motor brakes (short-circuit across motor). Close nothing: motor coasts. The L298N does this switching automatically based on the logic states of IN1–IN4.
+</MentalModelBox>
+
+## Why it matters for AI builders
+
+Every wheeled robot, conveyor, and cable-driven actuator needs a motor driver between the microcontroller and the motor. The L298N is ubiquitous in entry-level builds:
+
+- **Current isolation** — isolates the microcontroller's delicate logic circuitry from the motor's noisy, high-current supply
+- **Bidirectional control** — both forward and reverse without rewiring
+- **PWM-compatible** — Enable pin accepts PWM for speed control
+- **Dual channel** — controls two DC motors (differential drive) or one stepper
+
+## Working principle
+
+The L298N contains two independent H-bridges (channels A and B):
+
+**Control logic:**
+
+| IN1 | IN2 | ENA (PWM) | Motor A behaviour |
+|-----|-----|-----------|-------------------|
+| HIGH | LOW | HIGH | Forward (full speed) |
+| LOW | HIGH | HIGH | Reverse (full speed) |
+| HIGH | LOW | PWM | Forward (proportional speed) |
+| HIGH | HIGH | any | Brake (fast stop) |
+| LOW | LOW | any | Coast (free wheel) |
+
+The same table applies to IN3/IN4/ENB for Motor B.
+
+**Voltage drop.** The L298N uses bipolar transistors, not MOSFETs. Each transistor has a voltage drop of approximately 2V. If your motor needs 12V, supply 14V. This 2V loss is dissipated as heat — the large metal tab (heatsink fin) on the L298N module is essential.
+
+<ComponentDiagram
+  component="motor-driver"
+  title="L298N Motor Driver Module"
+  caption="Large heatsink fin dissipates transistor heat. Power input: 12V (motor supply, 6–35V range), 5V logic (or internal 5V regulator when motor supply > 7V), GND. Two motor outputs: OUT1/OUT2 (Motor A) and OUT3/OUT4 (Motor B). Logic control: ENA (Motor A enable/PWM), IN1/IN2 (Motor A direction), IN3/IN4 (Motor B direction), ENB (Motor B enable/PWM)."
+/>
+
+## Key parameters
+
+<SpecTable title="L298N Specifications">
+  <SpecRow parameter="Motor supply voltage" value="6 – 35 V" notes="Absolute max 46V — run at least 2V above your motor rated voltage" />
+  <SpecRow parameter="Logic supply voltage" value="5 V" notes="Many modules derive 5V internally when motor supply > 7V (jumper)" />
+  <SpecRow parameter="Peak current per channel" value="3 A" notes="Continuous: 2 A with heatsink — exceeding this causes thermal shutdown" />
+  <SpecRow parameter="Total DC current" value="4 A" notes="Across both channels simultaneously" />
+  <SpecRow parameter="Standby current" value="0 mA" notes="No quiescent current when disabled" />
+  <SpecRow parameter="Voltage drop per transistor" value="~2 V" notes="Total drop across H-bridge: ~2V — supply 2V above motor rated voltage" />
+  <SpecRow parameter="PWM frequency" value="Up to 40 kHz" notes="Recommended: 1–20 kHz for efficient switching" />
+  <SpecRow parameter="Operating temperature" value="-25 to +130 °C" notes="Thermal shutdown at junction temperature > 150°C" />
+  <SpecRow parameter="Package" value="Multiwatt-15" notes="Module form factor adds screw terminals and voltage regulator" />
+</SpecTable>
+
+## Pinout
+
+<PinoutBox title="L298N Module Pin Functions">
+  <PinRow pin="12V" label="Motor VCC" type="power" description="Motor power supply — 6V to 35V. Name is misleading: accepts any voltage in this range." />
+  <PinRow pin="GND" label="GND" type="ground" description="Common ground — must connect to Arduino GND and power supply GND" />
+  <PinRow pin="5V" label="Logic VCC" type="power" description="5V output when internal regulator jumper is installed (motor supply > 7V). Can power Arduino." />
+  <PinRow pin="ENA" label="Enable A" type="analog" description="Motor A enable — HIGH = enable; PWM = speed control. Remove jumper to use PWM." />
+  <PinRow pin="IN1" label="Input 1" type="digital" description="Motor A direction bit 1. HIGH + IN2 LOW = forward" />
+  <PinRow pin="IN2" label="Input 2" type="digital" description="Motor A direction bit 2. LOW + IN1 HIGH = forward; HIGH = reverse" />
+  <PinRow pin="IN3" label="Input 3" type="digital" description="Motor B direction bit 1" />
+  <PinRow pin="IN4" label="Input 4" type="digital" description="Motor B direction bit 2" />
+  <PinRow pin="ENB" label="Enable B" type="analog" description="Motor B enable — same function as ENA for channel B" />
+  <PinRow pin="OUT1" label="Motor A +" type="power" description="Motor A output 1 — connect to motor terminal" />
+  <PinRow pin="OUT2" label="Motor A -" type="power" description="Motor A output 2 — connect to motor terminal" />
+  <PinRow pin="OUT3" label="Motor B +" type="power" description="Motor B output 1" />
+  <PinRow pin="OUT4" label="Motor B -" type="power" description="Motor B output 2" />
+</PinoutBox>
+
+## Wiring
+
+<WiringBox title="L298N → Arduino → Two DC Motors">
+  <WireRow from="12V supply +" to="L298N 12V terminal" color="red" note="Motor power — separate from Arduino power. 7–12V for TT motors." />
+  <WireRow from="12V supply GND" to="L298N GND" color="black" note="Common ground — connect L298N GND to Arduino GND" />
+  <WireRow from="L298N 5V" to="Arduino 5V (optional)" color="orange" note="If using L298N internal 5V to power Arduino — only when motor supply > 7V" />
+  <WireRow from="Arduino GND" to="L298N GND" color="black" note="Common ground essential — without this, PWM signals float" />
+  <WireRow from="Arduino pin 9 (PWM)" to="L298N ENA" color="green" note="Remove jumper from ENA first — then connect PWM wire" />
+  <WireRow from="Arduino pin 7" to="L298N IN1" color="yellow" note="Motor A direction bit 1" />
+  <WireRow from="Arduino pin 8" to="L298N IN2" color="blue" note="Motor A direction bit 2" />
+  <WireRow from="L298N OUT1" to="Motor A terminal 1" color="orange" note="Motor terminal — swap with OUT2 to invert forward/reverse" />
+  <WireRow from="L298N OUT2" to="Motor A terminal 2" color="white" note="Motor terminal" />
+</WiringBox>
+
+## Code
+
+### Full motor driver class with speed and direction
+
+```cpp
+class MotorDriver {
+public:
+  int enPin, in1Pin, in2Pin;
+
+  MotorDriver(int en, int in1, int in2) : enPin(en), in1Pin(in1), in2Pin(in2) {}
+
+  void begin() {
+    pinMode(enPin, OUTPUT);
+    pinMode(in1Pin, OUTPUT);
+    pinMode(in2Pin, OUTPUT);
+    stop();
+  }
+
+  void forward(int speed = 255) {
+    digitalWrite(in1Pin, HIGH);
+    digitalWrite(in2Pin, LOW);
+    analogWrite(enPin, constrain(speed, 0, 255));
+  }
+
+  void reverse(int speed = 255) {
+    digitalWrite(in1Pin, LOW);
+    digitalWrite(in2Pin, HIGH);
+    analogWrite(enPin, constrain(speed, 0, 255));
+  }
+
+  void brake() {
+    // Fast stop: both INs HIGH
+    digitalWrite(in1Pin, HIGH);
+    digitalWrite(in2Pin, HIGH);
+    analogWrite(enPin, 255);
+  }
+
+  void stop() {
+    // Coast: both INs LOW, disable
+    digitalWrite(in1Pin, LOW);
+    digitalWrite(in2Pin, LOW);
+    analogWrite(enPin, 0);
+  }
+};
+
+MotorDriver motorA(9, 7, 8);  // ENA, IN1, IN2
+MotorDriver motorB(10, 5, 6); // ENB, IN3, IN4
+
+void setup() {
+  motorA.begin();
+  motorB.begin();
+}
+
+void loop() {
+  // Drive forward for 2 seconds
+  motorA.forward(200);
+  motorB.forward(200);
+  delay(2000);
+
+  // Brake
+  motorA.brake();
+  motorB.brake();
+  delay(200);
+
+  // Reverse for 1 second
+  motorA.reverse(150);
+  motorB.reverse(150);
+  delay(1000);
+
+  motorA.stop();
+  motorB.stop();
+  delay(1000);
+}
+```
+
+### PID velocity control with encoder feedback
+
+```cpp
+// Encoder on Motor A
+volatile int encoderCount = 0;
+void IRAM_ATTR encoderISR() { encoderCount++; }
+
+MotorDriver motorA(9, 7, 8);
+
+float Kp = 2.0, Ki = 0.5, Kd = 0.1;
+float targetRPM = 80.0;
+float integral = 0, prevError = 0;
+unsigned long prevTime = 0;
+const int PULSES_PER_REV = 20;
+
+void setup() {
+  motorA.begin();
+  attachInterrupt(digitalPinToInterrupt(2), encoderISR, RISING);
+  prevTime = millis();
+  Serial.begin(115200);
+}
+
+void loop() {
+  unsigned long now = millis();
+  float dt = (now - prevTime) / 1000.0;
+  if (dt < 0.05) return;  // 20 Hz control rate
+
+  noInterrupts();
+  int pulses = encoderCount;
+  encoderCount = 0;
+  interrupts();
+
+  float actualRPM = (pulses / (float)PULSES_PER_REV) / dt * 60.0;
+  float error = targetRPM - actualRPM;
+  integral += error * dt;
+  float derivative = (error - prevError) / dt;
+  float output = Kp * error + Ki * integral + Kd * derivative;
+
+  motorA.forward(constrain((int)output, 0, 255));
+
+  Serial.printf("Target: %.1f  Actual: %.1f  PWM: %.0f\n", targetRPM, actualRPM, output);
+  prevError = error;
+  prevTime = now;
+}
+```
+
+## Test procedure
+
+<TestProcedureBox title="L298N Motor Driver Verification">
+  <TestStep step={1}>
+    With no motor connected, verify wiring: power on and check the L298N 5V output pin reads 5V with a multimeter (if jumper is installed and motor supply > 7V).
+  </TestStep>
+  <TestStep step={2}>
+    Connect a DC motor to OUT1/OUT2. Run the basic forward code. Motor should spin. Confirm direction — "forward" is arbitrary until you define it in software.
+  </TestStep>
+  <TestStep step={3}>
+    Remove the ENA jumper. Connect ENA to PWM pin 9. Run a sweep: `analogWrite(9, 0)` to `analogWrite(9, 255)` in a loop. Motor speed should increase smoothly.
+  </TestStep>
+  <TestStep step={4}>
+    Touch the L298N heatsink after 2 minutes of continuous motor operation. It should be warm but not hot (> 60°C is a concern). If very hot, reduce motor load or supply a lower voltage.
+  </TestStep>
+  <TestStep step={5}>
+    Test the brake function: run motor at full speed, then call `brake()`. Compare stop distance vs `stop()` (coast). Brake should stop significantly faster.
+  </TestStep>
+</TestProcedureBox>
+
+## Common mistakes
+
+<CommonMistakeBox>
+- **Leaving ENA jumper in while trying PWM control** — the jumper shorts ENA to 5V (always-on at full speed). Remove the jumper and connect ENA to a PWM-capable pin to use speed control.
+- **Using L298N 5V output to power both Arduino and motors** — the internal 5V regulator can supply only 100 mA. The Arduino Uno draws 50 mA and any sensors add more. Use a dedicated 5V supply if current exceeds this.
+- **No common ground** — motor driver and Arduino on separate power supplies with no shared GND means the IN1–IN4 logic signals have no voltage reference and behave randomly.
+- **Running motors at stall from L298N** — stall current through the L298N causes the bipolar transistors to heat rapidly. The thermal shutdown will trigger at ~150°C junction temperature. Add a current-limiting mechanism or upgrade to a MOSFET-based driver (DRV8871, TB6612FNG).
+- **Back-EMF damaging Arduino** — if no motor driver is used and the motor is connected directly, the reverse voltage spike when power cuts can exceed GPIO clamp diode rating. Always use a driver or flyback diodes.
+</CommonMistakeBox>
+
+<FailureSignsBox>
+- **L298N very hot after a few seconds** — motor current exceeds 2A continuous rating; reduce load, use a lower voltage, or upgrade to DRV8833/TB6612FNG
+- **Motor only runs at full speed regardless of PWM** — ENA jumper is still installed; remove it and connect ENA pin to Arduino PWM output
+- **Motor makes noise but doesn't spin** — voltage too low to overcome friction; try increasing supply voltage to rated motor voltage
+- **Both motors run even when you command only one** — IN3/IN4 wired to same pins as IN1/IN2 by mistake; check wiring
+- **Arduino keeps resetting when motors start** — motor inrush current browning out Arduino via shared power; use separate motor power supply with common GND only
+</FailureSignsBox>
+
+## Robotics and AI use cases
+
+<AIUseCaseBox title="Motor Drivers in Physical AI Systems">
+
+- **Mobile robot differential drive** — two L298N channels (or two modules) drive left and right wheels independently. The velocity commands from a path-planning algorithm are translated to PWM duty cycles per channel.
+- **Policy action execution** — a reinforcement learning policy outputs wheel velocity targets; the motor driver converts these to the actual current and voltage that spins the motors.
+- **Gripper actuation** — a single L298N channel drives a DC gear motor that opens and closes a parallel gripper. Position is estimated from encoder pulses or limited by mechanical stops.
+- **Laboratory automation** — linear slide motors, sample carousel drives, and pump motors in automated experimental platforms.
+- **When to upgrade** — for higher efficiency, quieter operation, and thermal performance, upgrade to the TB6612FNG (2A, MOSFET-based, 1.2V drop vs 2V) or the DRV8871 (3.6A, integrated current sensing).
+
+</AIUseCaseBox>
+
+## Beginner project — Two-motor robot car
+
+Wire two DC motors to a single L298N. Implement forward, reverse, left turn, right turn, and brake functions. Control via Serial Monitor commands ('F', 'B', 'L', 'R', 'S').
+
+**Key learning:** Motor driver wiring, differential drive kinematics, serial command parsing.
+
+## Advanced project — Line-following robot with PID
+
+Add an IR sensor array (3 or 5 sensors) to detect a black line on white paper. Compute the weighted average of sensor readings to get line position error. Feed error into a PID controller that outputs differential speed commands to the two motors. The robot should follow curves and handle intersections.
+
+**Key learning:** Sensor array normalisation, cross-track error, PID tuning on a real physical system.
+
+<NextStepBox title="Next components">
+  <NextStep href="/hardware/dc-motor" label="DC Motor" description="The actuator this driver powers" />
+  <NextStep href="/hardware/arduino" label="Arduino" description="Microcontroller providing PWM and direction signals" />
+  <NextStep href="/hardware/esp32" label="ESP32" description="Wireless-enabled controller for networked robot control" />
+  <NextStep href="/hardware/imu-sensor" label="IMU Sensor" description="Add orientation feedback to your motor-driven system" />
+</NextStepBox>

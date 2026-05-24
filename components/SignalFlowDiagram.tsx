@@ -7,14 +7,17 @@ const colorMap = {
   violet: { bg: "bg-violet-500/10", border: "border-violet-500/30", text: "text-violet-400" },
   green:  { bg: "bg-green-500/10",  border: "border-green-500/30",  text: "text-green-400"  },
   amber:  { bg: "bg-amber-500/10",  border: "border-amber-500/30",  text: "text-amber-400"  },
+  orange: { bg: "bg-orange-500/10", border: "border-orange-500/30", text: "text-orange-400" },
+  slate:  { bg: "bg-slate-500/10",  border: "border-slate-500/30",  text: "text-slate-400"  },
+  red:    { bg: "bg-red-500/10",    border: "border-red-500/30",    text: "text-red-400"    },
 };
 
 export function FlowNode({ label, sublabel, color = "cyan" }: {
   label: string;
   sublabel?: string;
-  color?: keyof typeof colorMap;
+  color?: keyof typeof colorMap | string;
 }) {
-  const c = colorMap[color];
+  const c = colorMap[color as keyof typeof colorMap] ?? colorMap.cyan;
   return (
     <div className={`px-3 py-2 rounded-xl ${c.bg} border ${c.border} text-center flex-shrink-0`}>
       <p className={`text-xs font-semibold ${c.text}`}>{label}</p>

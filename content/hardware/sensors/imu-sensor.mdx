@@ -1,0 +1,292 @@
+---
+title: "IMU Sensor (MPU-6050)"
+description: "An inertial measurement unit combines a 3-axis accelerometer and a 3-axis gyroscope in one IC. It is the primary sensor for measuring motion, orientation, vibration, and tilt in robotic and embedded systems."
+difficulty: intermediate
+order: 1
+tags: ["sensor", "I2C", "accelerometer", "gyroscope", "robotics"]
+category: "Hardware Atlas"
+subcategory: "sensors"
+nextSlug: arduino
+---
+
+<LearningObjectives>
+- What acceleration and angular velocity actually measure in physical terms
+- How the MPU-6050 combines two measurement principles in a single MEMS chip
+- I2C communication protocol and how to read 6-axis data
+- Complementary filter and sensor fusion — converting raw measurements to stable orientation
+- How IMUs enable balance, gait estimation, and motion capture in robotic systems
+</LearningObjectives>
+
+## What is an IMU?
+
+An inertial measurement unit (IMU) is a sensor that measures the forces and rotations acting on a body. The MPU-6050 integrates two sensors on a single die:
+
+- **3-axis accelerometer** — measures proper acceleration (force per unit mass) along X, Y, and Z axes. At rest on a flat surface, it reads approximately 1g on the vertical axis due to the normal force from the surface.
+- **3-axis gyroscope** — measures angular velocity (rotation rate) around X, Y, and Z axes in degrees per second.
+
+Together they provide a 6-DOF (degrees of freedom) motion measurement — three translational and three rotational — which is the minimum needed to track orientation in 3D space.
+
+<MentalModelBox title="The accelerometer measures force, not motion. The gyroscope measures rotation, not angle.">
+This is the most important conceptual point about IMUs. An accelerometer at rest reads 9.8 m/s² (gravity) — it cannot distinguish between acceleration and gravity. A gyroscope reads the rate of rotation right now — to get angle, you must integrate over time, which accumulates drift. Both sensors have fundamental limitations. Sensor fusion — combining them with a mathematical filter — is what produces reliable orientation estimates. Every robotics project that uses orientation needs to understand this.
+</MentalModelBox>
+
+## Why it matters for AI builders
+
+The IMU is the vestibular system of a robot. Without it, a bipedal robot cannot balance, a drone cannot hover, and a wheeled robot cannot detect the terrain slope that would cause it to tip. Modern robot learning algorithms that output control signals at 20–50 Hz rely on IMU feedback to close the loop:
+
+- **Balance control** — ankle and hip servos in bipedal robots receive correction signals computed from IMU tilt angle
+- **Dead reckoning** — integrating IMU acceleration to estimate position when GPS is unavailable
+- **Gait phase detection** — detecting foot strike and liftoff in walking robots from acceleration peaks
+- **Vibration monitoring** — detecting motor imbalance, bearing wear, or resonance before failure
+- **Gesture recognition** — classifying motion patterns for human-machine interface
+
+## Working principle
+
+The MPU-6050 uses **MEMS (Micro-Electro-Mechanical Systems)** technology — silicon structures etched at microscale that deflect under force or rotation.
+
+**Accelerometer:** A proof mass is suspended by silicon springs. When the chip accelerates, the mass displaces relative to fixed electrodes, changing capacitance. The capacitance change is proportional to acceleration. Three orthogonal axes are measured simultaneously.
+
+**Gyroscope:** Uses the Coriolis effect. A vibrating proof mass is driven at a known frequency. When the chip rotates, Coriolis force deflects the mass perpendicular to its vibration, proportional to angular velocity. Again, three axes are measured.
+
+**Digital Motion Processor (DMP).** The MPU-6050 contains an onboard DMP that can run sensor fusion algorithms in hardware, producing quaternion orientation estimates without loading the main MCU.
+
+<SignalFlowDiagram title="IMU Data Pipeline">
+  <FlowNode label="MEMS sensors" sublabel="Accel + Gyro raw" color="blue" />
+  <FlowNode label="16-bit ADC" sublabel="Digitise signals" color="cyan" />
+  <FlowNode label="I2C registers" sublabel="6 × 2-byte values" color="violet" />
+  <FlowNode label="Sensor fusion" sublabel="Complementary filter" color="orange" />
+  <FlowNode label="Orientation" sublabel="Roll, pitch, yaw" color="green" />
+</SignalFlowDiagram>
+
+<ComponentDiagram
+  component="imu"
+  title="MPU-6050 Breakout Board"
+  caption="8-pin header: VCC (3.3V), GND, SCL (I2C clock), SDA (I2C data), XDA/XCL (auxiliary I2C for magnetometer), AD0 (address select — GND = 0x68, VCC = 0x69), INT (interrupt output). X/Y/Z coordinate axes printed on the board surface."
+/>
+
+## Key parameters
+
+<SpecTable title="MPU-6050 Specifications">
+  <SpecRow parameter="Supply voltage" value="2.375 – 3.46 V" notes="Use 3.3V — NOT 5V directly. Many breakouts include a 3.3V regulator." />
+  <SpecRow parameter="I2C address" value="0x68 or 0x69" notes="AD0 pin LOW = 0x68; AD0 pin HIGH = 0x69" />
+  <SpecRow parameter="Accelerometer range" value="±2, ±4, ±8, ±16 g" notes="Configurable — lower range = higher resolution" />
+  <SpecRow parameter="Accelerometer sensitivity" value="16384 LSB/g" notes="At ±2g range — divide raw by 16384 to get g-force" />
+  <SpecRow parameter="Gyroscope range" value="±250, ±500, ±1000, ±2000 °/s" notes="Configurable — ±250°/s for precision orientation" />
+  <SpecRow parameter="Gyroscope sensitivity" value="131 LSB/°/s" notes="At ±250°/s — divide raw by 131 to get °/s" />
+  <SpecRow parameter="ADC resolution" value="16-bit" notes="Each axis outputs a signed 16-bit integer" />
+  <SpecRow parameter="Output data rate" value="4 Hz – 8 kHz" notes="Configurable via DLPF and sample rate registers" />
+  <SpecRow parameter="DMP" value="Digital Motion Processor" notes="Onboard quaternion computation — optional, reduces MCU load" />
+  <SpecRow parameter="Package size" value="4 × 4 × 0.9 mm" notes="QFN-24 — breakout boards make it breadboard-compatible" />
+</SpecTable>
+
+## Pinout
+
+<PinoutBox title="MPU-6050 Breakout Pins">
+  <PinRow pin="VCC" label="VCC" type="power" description="3.3V supply — many breakouts accept 5V via onboard LDO regulator" />
+  <PinRow pin="GND" label="GND" type="ground" description="Ground reference" />
+  <PinRow pin="SCL" label="SCL" type="communication" description="I2C clock — Arduino A5" />
+  <PinRow pin="SDA" label="SDA" type="communication" description="I2C data — Arduino A4" />
+  <PinRow pin="XDA" label="XDA" type="communication" description="Auxiliary I2C data — for external magnetometer (e.g., HMC5883L)" />
+  <PinRow pin="XCL" label="XCL" type="communication" description="Auxiliary I2C clock — for external magnetometer" />
+  <PinRow pin="AD0" label="AD0" type="digital" description="I2C address select — GND = 0x68, VCC = 0x69. Allows 2 MPU-6050s on one bus" />
+  <PinRow pin="INT" label="INT" type="digital" description="Interrupt output — goes HIGH when new data is ready. Connect to MCU interrupt pin for efficient reading" />
+</PinoutBox>
+
+## Wiring
+
+<WiringBox title="MPU-6050 → Arduino Uno Wiring">
+  <WireRow from="MPU-6050 VCC" to="Arduino 3.3V" color="red" note="If breakout has LDO regulator, 5V is acceptable — check your breakout schematic" />
+  <WireRow from="MPU-6050 GND" to="Arduino GND" color="black" note="Common ground essential for I2C" />
+  <WireRow from="MPU-6050 SCL" to="Arduino A5" color="yellow" note="I2C clock — Arduino Wire library uses A5 by default" />
+  <WireRow from="MPU-6050 SDA" to="Arduino A4" color="green" note="I2C data — Arduino Wire library uses A4 by default" />
+  <WireRow from="MPU-6050 AD0" to="Arduino GND" color="white" note="Sets I2C address to 0x68 (default)" />
+</WiringBox>
+
+**I2C pull-up resistors:** Most MPU-6050 breakout boards include 4.7 kΩ pull-up resistors on SDA and SCL. If your bus has multiple I2C devices, only one set of pull-ups should be active — additional pull-ups lower the total resistance and reduce signal integrity.
+
+## Code
+
+### Read raw accelerometer and gyroscope data
+
+```cpp
+#include <Wire.h>
+
+const int MPU_ADDR = 0x68;
+
+void setup() {
+  Wire.begin();
+  Serial.begin(115200);
+
+  // Wake the MPU-6050 (exits sleep mode)
+  Wire.beginTransmission(MPU_ADDR);
+  Wire.write(0x6B);  // PWR_MGMT_1 register
+  Wire.write(0x00);  // Set to zero — clears sleep bit
+  Wire.endTransmission(true);
+}
+
+void loop() {
+  // Request 14 bytes starting at register 0x3B (ACCEL_XOUT_H)
+  Wire.beginTransmission(MPU_ADDR);
+  Wire.write(0x3B);
+  Wire.endTransmission(false);
+  Wire.requestFrom(MPU_ADDR, 14, true);
+
+  int16_t ax = Wire.read() << 8 | Wire.read();
+  int16_t ay = Wire.read() << 8 | Wire.read();
+  int16_t az = Wire.read() << 8 | Wire.read();
+  int16_t temp = Wire.read() << 8 | Wire.read();  // temperature (skip)
+  int16_t gx = Wire.read() << 8 | Wire.read();
+  int16_t gy = Wire.read() << 8 | Wire.read();
+  int16_t gz = Wire.read() << 8 | Wire.read();
+
+  // Convert to physical units
+  float ax_g = ax / 16384.0;   // g-force (±2g range)
+  float ay_g = ay / 16384.0;
+  float az_g = az / 16384.0;
+  float gx_dps = gx / 131.0;   // degrees per second (±250°/s range)
+  float gy_dps = gy / 131.0;
+  float gz_dps = gz / 131.0;
+
+  Serial.print("Ax:"); Serial.print(ax_g, 3);
+  Serial.print(" Ay:"); Serial.print(ay_g, 3);
+  Serial.print(" Az:"); Serial.print(az_g, 3);
+  Serial.print(" | Gx:"); Serial.print(gx_dps, 2);
+  Serial.print(" Gy:"); Serial.print(gy_dps, 2);
+  Serial.print(" Gz:"); Serial.println(gz_dps, 2);
+
+  delay(50);
+}
+```
+
+### Complementary filter for roll and pitch
+
+A complementary filter fuses accelerometer tilt angle (accurate but noisy) with gyroscope integration (smooth but drifts):
+
+```cpp
+#include <Wire.h>
+
+const int MPU_ADDR = 0x68;
+const float ALPHA = 0.98;     // gyro weight — higher = less accelerometer noise
+unsigned long prevTime = 0;
+float roll = 0, pitch = 0;
+
+void setup() {
+  Wire.begin();
+  Serial.begin(115200);
+  Wire.beginTransmission(MPU_ADDR);
+  Wire.write(0x6B); Wire.write(0x00);
+  Wire.endTransmission(true);
+  prevTime = millis();
+}
+
+void readIMU(float &ax, float &ay, float &az, float &gx, float &gy, float &gz) {
+  Wire.beginTransmission(MPU_ADDR);
+  Wire.write(0x3B);
+  Wire.endTransmission(false);
+  Wire.requestFrom(MPU_ADDR, 14, true);
+  ax = (Wire.read() << 8 | Wire.read()) / 16384.0;
+  ay = (Wire.read() << 8 | Wire.read()) / 16384.0;
+  az = (Wire.read() << 8 | Wire.read()) / 16384.0;
+  Wire.read(); Wire.read();  // skip temperature
+  gx = (Wire.read() << 8 | Wire.read()) / 131.0;
+  gy = (Wire.read() << 8 | Wire.read()) / 131.0;
+  gz = (Wire.read() << 8 | Wire.read()) / 131.0;
+}
+
+void loop() {
+  float ax, ay, az, gx, gy, gz;
+  readIMU(ax, ay, az, gx, gy, gz);
+
+  unsigned long now = millis();
+  float dt = (now - prevTime) / 1000.0;  // seconds
+  prevTime = now;
+
+  // Accelerometer tilt estimate (noisy)
+  float accel_roll  = atan2(ay, az) * 180.0 / PI;
+  float accel_pitch = atan2(-ax, sqrt(ay*ay + az*az)) * 180.0 / PI;
+
+  // Complementary filter: trust gyro short-term, accel long-term
+  roll  = ALPHA * (roll  + gx * dt) + (1 - ALPHA) * accel_roll;
+  pitch = ALPHA * (pitch + gy * dt) + (1 - ALPHA) * accel_pitch;
+
+  Serial.print("Roll:"); Serial.print(roll, 1);
+  Serial.print("  Pitch:"); Serial.println(pitch, 1);
+
+  delay(10);
+}
+```
+
+## Test procedure
+
+<TestProcedureBox title="MPU-6050 Verification">
+  <TestStep step={1}>
+    Wire and upload the raw data sketch. Open Serial Monitor at 115200 baud.
+    At rest on a flat surface, Az should read approximately +1.0 g, Ax and Ay near 0.
+  </TestStep>
+  <TestStep step={2}>
+    Tilt the board 90° around the X axis. Ay should now read approximately +1.0 g, Az near 0.
+    Verify all three accelerometer axes respond correctly to orientation changes.
+  </TestStep>
+  <TestStep step={3}>
+    Rotate the board quickly about the Z axis. Gz should spike to a large positive or negative value, then return to near zero when you stop.
+  </TestStep>
+  <TestStep step={4}>
+    Run the complementary filter sketch. Place the board flat — roll and pitch should both read near 0°.
+    Tilt 45° forward — pitch should read approximately 45°. Values should be stable (no slow drift over 30 seconds).
+  </TestStep>
+  <TestStep step={5}>
+    Run `i2cdetect` (if using Raspberry Pi) or use an I2C scanner sketch to confirm the device appears at address 0x68.
+  </TestStep>
+</TestProcedureBox>
+
+## Common mistakes
+
+<CommonMistakeBox>
+- **Connecting VCC to 5V directly** — the MPU-6050 chip is a 3.3V device. Most breakout boards include a voltage regulator that accepts 5V, but the chip itself will be damaged by 5V on the VCC pin if your breakout has no regulator.
+- **Forgetting to wake the sensor** — by default, the MPU-6050 powers up in sleep mode. Without writing 0x00 to register 0x6B, all readings will be 0.
+- **Using accelerometer alone for tilt** — accelerometer tilt is accurate when stationary but corrupted by any linear acceleration. Walking, vibration, or acceleration during motion corrupts the tilt estimate. Always fuse with the gyroscope.
+- **Using gyroscope alone for angle** — integrating angular velocity accumulates drift of 1–5° per minute. After a few minutes, the angle is meaningless without correction.
+- **Not calibrating at startup** — each MPU-6050 has a unique bias offset. Measure and subtract the offset at startup for accurate readings.
+</CommonMistakeBox>
+
+<FailureSignsBox>
+- **All readings stuck at 0 or maximum value** — sensor is in sleep mode; forgot `Wire.write(0x00)` to PWR_MGMT_1
+- **I2C scanner cannot find device at 0x68 or 0x69** — wiring error: check SCL/SDA not swapped, check VCC is correct voltage, check pull-up resistors present
+- **Extremely noisy readings that don't stabilise** — excessive vibration on the mounting surface, or electrical noise; add a 100 nF capacitor between VCC and GND close to the chip
+- **Pitch/roll drift continuously in one direction** — uncalibrated gyroscope bias; measure bias at startup and subtract
+- **Serial output shows garbage characters** — baud rate mismatch between `Serial.begin()` and Serial Monitor setting
+</FailureSignsBox>
+
+## Robotics and AI use cases
+
+<AIUseCaseBox title="IMU Sensors in Physical AI Systems">
+
+- **Bipedal balance** — IMU provides roll/pitch angle feedback at 100–1000 Hz for balance controllers. Without this, a walking robot falls within one step.
+- **Drone attitude control** — quadrotor flight controllers (ArduPilot, PX4) run PID loops on IMU angles at 1 kHz for stable hovering. The IMU is the most critical sensor on any multirotor.
+- **Dead reckoning** — integrating acceleration twice gives position estimate. Used in GPS-denied environments (tunnels, indoors), fused with wheel odometry.
+- **Gait phase detection** — machine learning classifiers on IMU time series can detect footstrike, stance, and swing phases without force sensors.
+- **Manipulation** — wrist-mounted IMU detects object contact forces via vibration signature; can be used as a tactile proxy.
+- **Gesture recognition** — glove-mounted IMU streams motion data that a classifier maps to commands for controlling robots or AR interfaces.
+
+</AIUseCaseBox>
+
+## Beginner project — Digital spirit level
+
+Display roll and pitch angles on the Serial Monitor. Place a marble or small ball on top of the board — observe the angles change as you tilt. Build a simple threshold: if roll > 10° or pitch > 10°, print "TILTED".
+
+**Key learning:** Converting raw ADC counts to physical units, atan2 geometry, threshold-based logic.
+
+## Advanced project — Self-balancing platform
+
+Build a platform that automatically stays level using two servo motors and an IMU. Measure roll and pitch. Run a PD controller: proportional to current tilt angle, derivative to damp oscillation. Output servo angles that counteract the measured tilt.
+
+**Components:** Arduino, MPU-6050, 2× SG90 servos in a pan-tilt configuration, rigid platform (cut acrylic or cardboard).
+
+**Key learning:** PD control tuning, sensor fusion, mechanical design for stability, the physics of inverted pendulum control.
+
+<NextStepBox title="Next components">
+  <NextStep href="/hardware/arduino" label="Arduino" description="Microcontroller that reads the IMU via I2C" />
+  <NextStep href="/hardware/servo-motor" label="Servo Motor" description="Actuator that responds to IMU feedback in balance systems" />
+  <NextStep href="/hardware/esp32" label="ESP32" description="Wireless IMU logging over Wi-Fi for motion capture" />
+  <NextStep href="/hardware/motor-driver" label="Motor Driver" description="Drive DC motors from IMU-computed balance signals" />
+</NextStepBox>

@@ -1,0 +1,321 @@
+---
+title: "ESP32 DevKit V1"
+description: "The ESP32 is a dual-core 32-bit microcontroller with integrated 2.4 GHz Wi-Fi and Bluetooth. It is the standard platform for IoT, wireless sensor networks, edge AI inference, and physical AI testbeds that need network connectivity."
+difficulty: intermediate
+order: 2
+tags: ["microcontroller", "Wi-Fi", "Bluetooth", "IoT", "edge AI"]
+category: "Hardware Atlas"
+subcategory: "microcontrollers"
+nextSlug: arduino
+---
+
+<LearningObjectives>
+- How the ESP32 differs from Arduino — dual core, Wi-Fi, Bluetooth, more memory
+- GPIO capabilities: PWM on any pin, multiple hardware UARTs, I2C, SPI, ADC, DAC
+- How to connect the ESP32 to Wi-Fi and send sensor data over HTTP or MQTT
+- How to use the second core for real-time tasks while the first core runs networking
+- The role of the ESP32 in physical AI systems — wireless bridge between robot and cloud/edge
+</LearningObjectives>
+
+## What is the ESP32?
+
+The ESP32 is a system-on-chip (SoC) designed by Espressif Systems, released in 2016. It integrates a dual-core Xtensa LX6 processor at 240 MHz, 520 KB SRAM, 4 MB flash (on the DevKit), 802.11 b/g/n Wi-Fi, Bluetooth 4.2 + BLE, and a comprehensive set of peripherals — all in a 5 × 5 mm package.
+
+The DevKit V1 breakout board exposes these capabilities on a 30-pin header that plugs directly into a breadboard, includes a USB-to-UART converter (CP2102 or CH340C), a 3.3V LDO regulator, and BOOT/RST buttons for programming.
+
+<MentalModelBox title="The ESP32 is an Arduino plus a Wi-Fi router, running at 10x the clock speed">
+An Arduino Uno runs at 16 MHz with 2 KB of RAM. The ESP32 runs at 240 MHz with 520 KB of RAM — two separate cores. Core 0 runs the Wi-Fi stack and networking. Core 1 runs your application code. They communicate through a thread-safe queue. This means you can stream sensor data to a server on one core while running a closed-loop control algorithm on the other, with deterministic timing on the control side.
+</MentalModelBox>
+
+## Why it matters for AI builders
+
+The ESP32 is the standard wireless bridge in physical AI systems:
+
+- **Data collection** — stream IMU, encoder, and force sensor data over Wi-Fi to a Python server for building training datasets
+- **Remote inference** — receive inference results from a cloud or edge server, execute them as motor commands
+- **MQTT broker client** — publish sensor readings and subscribe to command topics in multi-robot systems
+- **BLE HID** — act as a Bluetooth keyboard or gamepad for wireless robot teleoperation
+- **Camera module** — the ESP32-CAM variant adds OV2640 camera for low-cost visual AI at the edge
+- **OTA updates** — update robot firmware wirelessly without connecting a USB cable
+
+## Working principle
+
+**Dual-core architecture.** The ESP32 has two Xtensa LX6 cores:
+- **Core 0 (PRO_CPU)** — runs the Wi-Fi/Bluetooth protocol stack (FreeRTOS tasks managed by the SDK)
+- **Core 1 (APP_CPU)** — runs `loop()` in the Arduino framework; runs your application
+
+For time-sensitive tasks (PID control, encoder reading), pin the task to Core 1 using `xTaskCreatePinnedToCore()` to avoid contention with the Wi-Fi stack.
+
+**GPIO flexibility.** Unlike the Arduino Uno where only pins 3,5,6,9,10,11 support PWM, the ESP32 can assign PWM (LEDC peripheral) to virtually any GPIO. Similarly, I2C and SPI buses can be routed to any GPIO pair via the GPIO matrix.
+
+<SignalFlowDiagram title="ESP32 Physical AI Bridge">
+  <FlowNode label="Sensors" sublabel="IMU, encoder, force" color="green" />
+  <FlowNode label="Core 1" sublabel="Real-time control loop" color="cyan" />
+  <FlowNode label="Queue" sublabel="Thread-safe IPC" color="violet" />
+  <FlowNode label="Core 0" sublabel="Wi-Fi / MQTT stack" color="blue" />
+  <FlowNode label="Network" sublabel="Data to edge/cloud" color="orange" />
+</SignalFlowDiagram>
+
+<ComponentDiagram
+  component="esp32"
+  title="ESP32 DevKit V1 — Board Diagram"
+  caption="Dual-core Xtensa LX6 at 240 MHz. Left rail: power (3.3V, GND, Vin, EN) and GPIO 34–39 (input only, no internal pull-up). Right rail: GPIO 1–23 including UART0, I2C, SPI, PWM-capable pins. Wi-Fi PCB antenna at top. USB Micro-B port for programming and serial. RST and BOOT buttons for flashing."
+/>
+
+## Key parameters
+
+<SpecTable title="ESP32 DevKit V1 Specifications">
+  <SpecRow parameter="CPU" value="Dual-core Xtensa LX6" notes="240 MHz max — both cores independently configurable" />
+  <SpecRow parameter="SRAM" value="520 KB" notes="Plus 4 MB PSRAM on some variants" />
+  <SpecRow parameter="Flash" value="4 MB" notes="On-board SPI flash — 8 MB variants available" />
+  <SpecRow parameter="Wi-Fi" value="802.11 b/g/n" notes="2.4 GHz, up to 150 Mbps, WPA2" />
+  <SpecRow parameter="Bluetooth" value="4.2 + BLE 5.0" notes="Classic BT and BLE on same radio" />
+  <SpecRow parameter="GPIO" value="30 pins (DevKit)" notes="Most are input/output; GPIO 34–39 are input only" />
+  <SpecRow parameter="PWM channels" value="16" notes="LEDC peripheral — any GPIO, 1 Hz to 40 MHz, 1–16 bit resolution" />
+  <SpecRow parameter="ADC" value="12-bit, 18 channels" notes="ADC2 channels cannot be used when Wi-Fi is active — use ADC1 channels" />
+  <SpecRow parameter="DAC" value="2 × 8-bit" notes="GPIO 25 and GPIO 26 — true analog output" />
+  <SpecRow parameter="I2C" value="2 buses" notes="Any GPIO pair via GPIO matrix" />
+  <SpecRow parameter="SPI" value="4 buses (2 usable)" notes="HSPI and VSPI available for user peripherals" />
+  <SpecRow parameter="UART" value="3 hardware UARTs" notes="UART0 used for programming/serial; UART1, UART2 available" />
+  <SpecRow parameter="Operating voltage" value="3.3 V" notes="I/O is NOT 5V tolerant — use level shifter for 5V signals" />
+  <SpecRow parameter="Input voltage (Vin)" value="5 V" notes="Via USB or Vin pin — onboard LDO regulates to 3.3V" />
+</SpecTable>
+
+## Pinout
+
+<PinoutBox title="ESP32 DevKit V1 Key Pins">
+  <PinRow pin="3.3V" label="3V3" type="power" description="3.3V regulated output — max 600 mA from onboard LDO" />
+  <PinRow pin="GND" label="GND" type="ground" description="Ground — two GND pins on DevKit" />
+  <PinRow pin="Vin" label="Vin" type="power" description="5V input — feeds the 3.3V LDO; use when not powered via USB" />
+  <PinRow pin="EN" label="EN" type="digital" description="Enable pin — pull LOW to reset. Connect to RST button" />
+  <PinRow pin="GPIO0" label="BOOT" type="digital" description="Pull LOW during power-up to enter download mode. Leave floating for normal operation" />
+  <PinRow pin="GPIO1" label="TX0" type="communication" description="UART0 transmit — used by Serial.print() and USB programming" />
+  <PinRow pin="GPIO3" label="RX0" type="communication" description="UART0 receive — avoid using for other functions" />
+  <PinRow pin="GPIO21" label="SDA" type="communication" description="Default I2C SDA — can be reassigned to any GPIO" />
+  <PinRow pin="GPIO22" label="SCL" type="communication" description="Default I2C SCL — can be reassigned to any GPIO" />
+  <PinRow pin="GPIO23" label="MOSI" type="communication" description="Default SPI MOSI (VSPI)" />
+  <PinRow pin="GPIO19" label="MISO" type="communication" description="Default SPI MISO (VSPI)" />
+  <PinRow pin="GPIO18" label="SCK" type="communication" description="Default SPI clock (VSPI)" />
+  <PinRow pin="GPIO5" label="SS" type="communication" description="Default SPI chip select (VSPI)" />
+  <PinRow pin="GPIO34-39" label="Input only" type="analog" description="No internal pull-ups, no output capability — ADC1 channels, safe to use while Wi-Fi is active" />
+  <PinRow pin="GPIO25" label="DAC1" type="analog" description="8-bit DAC output — true analog voltage" />
+  <PinRow pin="GPIO26" label="DAC2" type="analog" description="8-bit DAC output — true analog voltage" />
+</PinoutBox>
+
+## Wiring
+
+<WiringBox title="ESP32 Common Peripheral Wiring">
+  <WireRow from="External 5V supply" to="ESP32 Vin" color="red" note="Use when not powering via USB — Vin feeds the 3.3V LDO" />
+  <WireRow from="Supply GND" to="ESP32 GND" color="black" note="Common ground with all peripherals" />
+  <WireRow from="I2C sensor SDA" to="GPIO 21" color="green" note="Add 4.7 kΩ pull-up to 3.3V if not on breakout board" />
+  <WireRow from="I2C sensor SCL" to="GPIO 22" color="yellow" note="Add 4.7 kΩ pull-up to 3.3V if not on breakout board" />
+  <WireRow from="5V sensor signal" to="Level shifter → GPIO" color="orange" note="ESP32 is NOT 5V tolerant — always use level shifter for 5V signals" />
+</WiringBox>
+
+## Code
+
+### Connect to Wi-Fi and send sensor data over HTTP
+
+```cpp
+#include <WiFi.h>
+#include <HTTPClient.h>
+
+const char* SSID = "YourNetworkName";
+const char* PASS = "YourPassword";
+const char* SERVER = "http://192.168.1.100:5000/data";
+
+void setup() {
+  Serial.begin(115200);
+
+  WiFi.begin(SSID, PASS);
+  Serial.print("Connecting");
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500); Serial.print(".");
+  }
+  Serial.println("\nConnected. IP: " + WiFi.localIP().toString());
+}
+
+void loop() {
+  float sensor_value = analogRead(34) * (3.3 / 4095.0);  // ADC1 — safe with Wi-Fi
+
+  if (WiFi.status() == WL_CONNECTED) {
+    HTTPClient http;
+    http.begin(SERVER);
+    http.addHeader("Content-Type", "application/json");
+
+    String payload = "{\"value\": " + String(sensor_value, 3) + "}";
+    int code = http.POST(payload);
+    Serial.printf("HTTP POST: %d | value: %.3f\n", code, sensor_value);
+    http.end();
+  }
+
+  delay(1000);
+}
+```
+
+### Dual-core: control loop on Core 1, Wi-Fi on Core 0
+
+```cpp
+#include <WiFi.h>
+
+// Shared data protected by mutex
+portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
+volatile float latest_sensor = 0.0;
+
+// Task running on Core 1 — real-time sensor reading at 100 Hz
+void controlTask(void* param) {
+  while (true) {
+    float reading = analogRead(34) * (3.3 / 4095.0);
+    portENTER_CRITICAL(&mux);
+    latest_sensor = reading;
+    portEXIT_CRITICAL(&mux);
+    vTaskDelay(10 / portTICK_PERIOD_MS);  // 100 Hz
+  }
+}
+
+void setup() {
+  Serial.begin(115200);
+
+  // Pin control task to Core 1
+  xTaskCreatePinnedToCore(
+    controlTask,    // task function
+    "ControlTask",  // name
+    2048,           // stack size (bytes)
+    NULL,           // parameter
+    1,              // priority
+    NULL,           // task handle
+    1               // core ID
+  );
+
+  // Wi-Fi runs on Core 0 — Arduino loop() also Core 1
+  WiFi.begin("SSID", "PASS");
+}
+
+void loop() {
+  // loop() runs on Core 1 alongside controlTask
+  portENTER_CRITICAL(&mux);
+  float val = latest_sensor;
+  portEXIT_CRITICAL(&mux);
+
+  Serial.println(val);
+  delay(500);
+}
+```
+
+### MQTT client — publish sensor data
+
+```cpp
+#include <WiFi.h>
+#include <PubSubClient.h>
+
+const char* SSID = "Network";
+const char* PASS = "Password";
+const char* BROKER = "192.168.1.100";
+
+WiFiClient wifiClient;
+PubSubClient mqttClient(wifiClient);
+
+void reconnect() {
+  while (!mqttClient.connected()) {
+    if (mqttClient.connect("esp32-robot")) {
+      mqttClient.subscribe("robot/command");  // subscribe to command topic
+    }
+    delay(500);
+  }
+}
+
+void callback(char* topic, byte* payload, unsigned int length) {
+  String msg = "";
+  for (unsigned int i = 0; i < length; i++) msg += (char)payload[i];
+  Serial.printf("Command received: %s\n", msg.c_str());
+  // Parse and execute motor command here
+}
+
+void setup() {
+  Serial.begin(115200);
+  WiFi.begin(SSID, PASS);
+  while (WiFi.status() != WL_CONNECTED) delay(200);
+  mqttClient.setServer(BROKER, 1883);
+  mqttClient.setCallback(callback);
+}
+
+void loop() {
+  if (!mqttClient.connected()) reconnect();
+  mqttClient.loop();
+
+  float imu_pitch = 12.3;  // replace with real IMU reading
+  String payload = String(imu_pitch, 2);
+  mqttClient.publish("robot/imu/pitch", payload.c_str());
+  delay(50);  // 20 Hz publish rate
+}
+```
+
+## Test procedure
+
+<TestProcedureBox title="ESP32 DevKit Verification">
+  <TestStep step={1}>
+    Install the ESP32 board package in Arduino IDE: File → Preferences → Additional Board URLs → add the Espressif boards URL. Then install via Tools → Board Manager → search "ESP32 by Espressif".
+  </TestStep>
+  <TestStep step={2}>
+    Select board "ESP32 Dev Module" and the correct COM port. Upload a simple Blink sketch using GPIO 2 (built-in LED on most DevKits). Confirm the LED blinks.
+  </TestStep>
+  <TestStep step={3}>
+    Upload the Wi-Fi connection sketch with your network credentials. Open Serial Monitor at 115200 baud. Confirm it prints "Connected" and displays an IP address within 5 seconds.
+  </TestStep>
+  <TestStep step={4}>
+    Test ADC: connect a potentiometer to GPIO 34 (ADC1). Read the value with `analogRead(34)`. Turning the pot should produce values from 0 to 4095.
+  </TestStep>
+  <TestStep step={5}>
+    Test I2C: connect an MPU-6050 to GPIO 21 (SDA) and GPIO 22 (SCL). Run an I2C scanner sketch — the device should appear at address 0x68.
+  </TestStep>
+</TestProcedureBox>
+
+## Common mistakes
+
+<CommonMistakeBox>
+- **Using ADC2 while Wi-Fi is active** — ADC2 pins (GPIO 0, 2, 4, 12–15, 25–27) are shared with the Wi-Fi radio. Readings become erratic or always return 0 when Wi-Fi is running. Use ADC1 pins (GPIO 32–36, 39) for analog sensing.
+- **Connecting 5V logic signals directly** — the ESP32 is 3.3V logic. GPIO pins can tolerate 3.6V absolute maximum. A 5V signal from an Arduino UART or sensor will damage the ESP32 over time. Always use a logic level shifter.
+- **Not holding GPIO0 LOW for flashing** — if the ESP32 does not enter download mode when uploading, hold the BOOT button while clicking Upload, then release after "Connecting..." appears.
+- **Stack overflow in FreeRTOS tasks** — if a task crashes silently, the stack size is likely too small. Increase from 2048 to 4096 or 8192 bytes for tasks that use Serial or heavy string operations.
+- **Powering ESP32 from Arduino 3.3V pin** — the Arduino's 3.3V pin can supply only 50 mA. The ESP32 can draw 240 mA during Wi-Fi TX bursts. Always use a dedicated 3.3V regulator (AMS1117-3.3, 800 mA) when powering from a custom supply.
+</CommonMistakeBox>
+
+<FailureSignsBox>
+- **Upload fails with "Failed to connect to ESP32"** — BOOT pin not held LOW during upload, wrong COM port, or CP2102/CH340 driver not installed
+- **Random resets during Wi-Fi use** — insufficient power supply current; Wi-Fi TX draws up to 240 mA in bursts — add 100 µF capacitor between 3.3V and GND
+- **ADC reads always 0 or always 4095** — using an ADC2 pin while Wi-Fi is active, or connecting a signal above 3.3V to the ADC pin
+- **I2C devices not found** — GPIO 21/22 need 4.7 kΩ pull-ups to 3.3V; check that sensor VCC is 3.3V (not 5V) if sensor is directly powered
+- **Core 1 freezes while Wi-Fi is running** — Wi-Fi interrupt is starving Core 1; use `xTaskCreatePinnedToCore()` to pin your control task to Core 1 with higher priority
+</FailureSignsBox>
+
+## Robotics and AI use cases
+
+<AIUseCaseBox title="ESP32 in Physical AI Systems">
+
+- **Wireless sensor logger** — stream IMU, encoder, and force data at 100 Hz over Wi-Fi to a Python script collecting robot demonstration data for imitation learning.
+- **MQTT robot controller** — subscribe to command topics published by a Python reinforcement learning agent; execute joint angle commands from the policy on the ESP32 side.
+- **BLE teleoperation** — act as a BLE HID device that receives joystick inputs from a mobile app and translates them to servo commands.
+- **Edge inference** — run small TensorFlow Lite models (gesture classifier, anomaly detector) directly on the ESP32 using the TFLite Micro framework.
+- **Multi-robot mesh** — ESP-NOW protocol (Espressif's peer-to-peer protocol) enables sub-millisecond communication between multiple ESP32 robots without a router.
+- **OTA robot updates** — deploy new policy parameters or control code to a deployed robot over Wi-Fi using ArduinoOTA.
+
+</AIUseCaseBox>
+
+## Beginner project — Wi-Fi sensor dashboard
+
+Connect an MPU-6050 to the ESP32. Read roll and pitch using a complementary filter. Serve a simple HTML page from the ESP32's built-in web server that displays the current angles, refreshed every 500 ms via JavaScript fetch.
+
+**Key learning:** WiFiServer, HTTP GET handler, JSON serialisation, browser polling.
+
+## Advanced project — Real-time robot telemetry streamer
+
+Stream 6-DOF IMU data + 2× encoder values + battery voltage over MQTT at 50 Hz to a Python subscriber that logs to a CSV file and plots a live dashboard using Matplotlib or Plotly Dash. Implement data loss detection by embedding a sequence counter in each packet.
+
+**Key learning:** Dual-core FreeRTOS, MQTT QoS levels, Python MQTT subscriber, real-time plotting, packet loss metrics.
+
+<NextStepBox title="Next components">
+  <NextStep href="/hardware/imu-sensor" label="IMU Sensor" description="The primary sensor to connect to ESP32 for motion data" />
+  <NextStep href="/hardware/motor-driver" label="Motor Driver" description="Drive motors from ESP32 GPIO via L298N" />
+  <NextStep href="/hardware/arduino" label="Arduino" description="Simpler microcontroller — compare capabilities" />
+  <NextStep href="/hardware/servo-motor" label="Servo Motor" description="Control servos from ESP32 using LEDC PWM" />
+</NextStepBox>

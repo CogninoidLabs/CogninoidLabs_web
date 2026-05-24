@@ -1,0 +1,254 @@
+---
+title: "DC Motor"
+description: "A DC brushed motor converts electrical energy into continuous rotational motion. It is the most common actuator for wheeled robots, conveyor systems, and drivetrains — anywhere continuous rotation and variable speed are needed."
+difficulty: beginner
+order: 2
+tags: ["actuator", "motor", "PWM", "robotics", "drivetrain"]
+category: "Hardware Atlas"
+subcategory: "actuators"
+nextSlug: motor-driver
+---
+
+<LearningObjectives>
+- How a brushed DC motor converts electrical energy to rotation (Lorentz force, back-EMF)
+- Why you cannot connect a DC motor directly to a microcontroller pin
+- Key parameters: rated voltage, no-load current, stall torque, stall current
+- PWM speed control and H-bridge direction control
+- How DC motors fit into wheeled robot drivetrains
+</LearningObjectives>
+
+## What is a DC motor?
+
+A DC (direct current) brushed motor is an electromechanical transducer that converts electrical power into rotational mechanical power. It consists of:
+
+- **Stator** — permanent magnets that create a fixed magnetic field
+- **Rotor (armature)** — a wound coil of wire that rotates inside the magnetic field
+- **Commutator** — a segmented copper ring that switches current direction in the rotor coils as they rotate
+- **Brushes** — stationary carbon contacts that maintain electrical contact with the spinning commutator
+
+<MentalModelBox title="A DC motor is a Lorentz force machine">
+When current flows through a conductor in a magnetic field, a force acts on the conductor (F = BIL — the Lorentz force). The commutator switches the current direction in each coil at exactly the right moment so the force always acts in the same rotational direction. Reversing the battery terminals reverses the current direction, reversing the rotation. Reducing voltage reduces current, reducing force and speed. This is why speed control is natural with voltage (or PWM) and direction control requires reversing polarity — which is what an H-bridge does.
+</MentalModelBox>
+
+## Why it matters for AI builders
+
+DC motors are the most common actuator in mobile robotics. Every wheeled robot from a ₹300 toy car to a Boston Dynamics Spot uses DC motors (or their derivative, the brushless motor) for locomotion. Key roles:
+
+- **Differential drive** — two independently controlled DC motors drive a wheeled robot. Speed difference produces turning.
+- **Conveyor and linear slides** — translation stages in laboratory automation and pick-and-place systems
+- **Winch and cable actuation** — lift mechanisms in climbing robots
+- **Cooling and ventilation** — fan motors in embedded systems
+
+## Working principle
+
+**Back-EMF.** When a DC motor spins, its rotating armature generates a voltage opposing the supply voltage, called back-EMF (electromotive force). Back-EMF increases with speed. At steady state:
+
+```
+V_supply = I × R_armature + V_back_EMF
+```
+
+This means current (and therefore torque) is highest when the motor is stalled (V_back_EMF = 0) and lowest at free-run speed. This is why stall current is typically 5–15× the no-load current.
+
+**PWM speed control.** Since speed is proportional to average voltage, rapidly switching the voltage on and off (PWM) at 10–20 kHz produces an effective average voltage proportional to duty cycle. At 50% duty cycle with a 12V supply, the effective voltage is 6V.
+
+<SignalFlowDiagram title="DC Motor Speed Control">
+  <FlowNode label="MCU GPIO" sublabel="PWM duty cycle" color="cyan" />
+  <FlowNode label="H-bridge" sublabel="Amplify current" color="blue" />
+  <FlowNode label="Motor armature" sublabel="Current → torque" color="violet" />
+  <FlowNode label="Shaft rotation" sublabel="Speed ∝ voltage" color="orange" />
+  <FlowNode label="Back-EMF" sublabel="Opposes supply" color="green" />
+</SignalFlowDiagram>
+
+<ComponentDiagram
+  component="dc-motor"
+  title="DC Brushed Motor — Cross Section"
+  caption="Permanent magnet stator (outer casing). Wound armature rotor on central shaft. Commutator segments at rear with carbon brushes maintaining contact. Output shaft with motor terminals (+/-) labeled."
+/>
+
+## Key parameters
+
+<SpecTable title="Typical DC Hobby Motor (TT Motor) Specifications">
+  <SpecRow parameter="Operating voltage" value="3 – 6 V" notes="TT motor — most common in wheeled robot kits" />
+  <SpecRow parameter="No-load speed" value="90 – 200 RPM" notes="At 6V with no load — varies by gear ratio" />
+  <SpecRow parameter="No-load current" value="~150 mA" notes="At 6V" />
+  <SpecRow parameter="Stall torque" value="0.3 – 0.8 kg·cm" notes="At rated voltage — maximum torque before motor stops" />
+  <SpecRow parameter="Stall current" value="1 – 3 A" notes="At rated voltage — this is why you need a motor driver" />
+  <SpecRow parameter="Gear ratio" value="48:1" notes="Common TT motor reduction — raw motor shaft is ~9600 RPM" />
+  <SpecRow parameter="Shaft diameter" value="3 mm" notes="D-shaped for wheel coupler — flat side must align with coupler flat" />
+  <SpecRow parameter="Shaft length" value="9 mm" notes="Standard TT motor" />
+</SpecTable>
+
+## Pinout
+
+<PinoutBox title="DC Motor Terminals">
+  <PinRow pin="M+" label="Motor positive" type="power" description="Connect to H-bridge output — polarity determines direction" />
+  <PinRow pin="M-" label="Motor negative" type="ground" description="Connect to H-bridge output — reverse M+ and M- to reverse direction" />
+</PinoutBox>
+
+**No polarity requirement.** Unlike LEDs or capacitors, a DC motor has no strict polarity — swapping M+ and M- simply reverses the direction of rotation. The H-bridge driver handles polarity reversal electronically.
+
+## Wiring
+
+<WiringBox title="DC Motor → Arduino via L298N Motor Driver">
+  <WireRow from="12V supply +" to="L298N 12V terminal" color="red" note="Power supply for motor — NOT Arduino 5V" />
+  <WireRow from="Supply GND" to="L298N GND" color="black" note="Common ground with Arduino" />
+  <WireRow from="L298N OUT1" to="Motor terminal 1" color="orange" note="L298N bridges supply to motor" />
+  <WireRow from="L298N OUT2" to="Motor terminal 2" color="yellow" note="Reverse OUT1/OUT2 to reverse motor" />
+  <WireRow from="Arduino PWM pin" to="L298N ENA" color="green" note="PWM duty cycle controls motor speed" />
+  <WireRow from="Arduino digital pin" to="L298N IN1" color="blue" note="Direction bit 1" />
+  <WireRow from="Arduino digital pin" to="L298N IN2" color="white" note="Direction bit 2" />
+</WiringBox>
+
+**Critical:** Never connect a DC motor directly to a GPIO pin. Motors draw 150 mA no-load and 1–3 A stall — far beyond the 40 mA GPIO limit. Always use a motor driver (L298N, DRV8833, TB6612FNG).
+
+## Code
+
+### Basic forward/reverse control (with L298N)
+
+```cpp
+// L298N connected to Arduino
+const int ENA = 9;   // PWM speed control
+const int IN1 = 7;   // direction bit 1
+const int IN2 = 8;   // direction bit 2
+
+void motorForward(int speed) {
+  // speed: 0–255
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+  analogWrite(ENA, speed);
+}
+
+void motorReverse(int speed) {
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, HIGH);
+  analogWrite(ENA, speed);
+}
+
+void motorStop() {
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, LOW);
+  analogWrite(ENA, 0);
+}
+
+void setup() {
+  pinMode(ENA, OUTPUT);
+  pinMode(IN1, OUTPUT);
+  pinMode(IN2, OUTPUT);
+}
+
+void loop() {
+  motorForward(200);  // ~78% speed
+  delay(2000);
+  motorStop();
+  delay(500);
+  motorReverse(150);  // ~59% speed
+  delay(2000);
+  motorStop();
+  delay(500);
+}
+```
+
+### Differential drive (two-motor wheeled robot)
+
+```cpp
+const int ENA = 9, IN1 = 7, IN2 = 8;   // Left motor
+const int ENB = 10, IN3 = 5, IN4 = 6;  // Right motor
+
+void drive(int left, int right) {
+  // left, right: -255 to +255 (negative = reverse)
+  // Left motor
+  if (left >= 0) { digitalWrite(IN1, HIGH); digitalWrite(IN2, LOW); }
+  else           { digitalWrite(IN1, LOW);  digitalWrite(IN2, HIGH); }
+  analogWrite(ENA, abs(left));
+
+  // Right motor
+  if (right >= 0) { digitalWrite(IN3, HIGH); digitalWrite(IN4, LOW); }
+  else            { digitalWrite(IN3, LOW);  digitalWrite(IN4, HIGH); }
+  analogWrite(ENB, abs(right));
+}
+
+void setup() {
+  pinMode(ENA, OUTPUT); pinMode(IN1, OUTPUT); pinMode(IN2, OUTPUT);
+  pinMode(ENB, OUTPUT); pinMode(IN3, OUTPUT); pinMode(IN4, OUTPUT);
+}
+
+void loop() {
+  drive(200, 200);   // Forward
+  delay(1000);
+  drive(200, -200);  // Spin right
+  delay(500);
+  drive(200, 150);   // Gentle right curve
+  delay(1000);
+  drive(0, 0);       // Stop
+  delay(1000);
+}
+```
+
+## Test procedure
+
+<TestProcedureBox title="DC Motor Verification">
+  <TestStep step={1}>
+    Before connecting to a driver, verify motor is working: touch 3V from a battery directly to the two motor terminals. The shaft should spin. Swap wires — shaft should spin in the opposite direction.
+  </TestStep>
+  <TestStep step={2}>
+    Wire the motor to the L298N driver (see wiring section). Connect ENA to 5V (full speed, no PWM). Set IN1 HIGH, IN2 LOW. Motor should spin forward.
+  </TestStep>
+  <TestStep step={3}>
+    Upload the basic control sketch. Confirm forward and reverse operation with 2-second pauses.
+  </TestStep>
+  <TestStep step={4}>
+    Test PWM speed control: call `motorForward(50)` — motor should move slowly. Call `motorForward(255)` — motor should run at full speed. Intermediate values should produce proportional speed.
+  </TestStep>
+  <TestStep step={5}>
+    Check for motor heating after 5 minutes of continuous operation. Warm is normal. Hot to touch indicates overcurrent — check your supply voltage vs rated voltage.
+  </TestStep>
+</TestProcedureBox>
+
+## Common mistakes
+
+<CommonMistakeBox>
+- **Driving motor directly from GPIO pin** — microcontroller GPIO pins source/sink 40 mA maximum. A motor under load draws 500 mA–3 A. The GPIO will be damaged or the chip will reset.
+- **Powering motor from Arduino 5V rail** — the Arduino's 5V regulator delivers 500 mA maximum. Motor stall current easily exceeds this, browning out the entire board.
+- **Not installing a flyback diode** — when motor power is cut, the collapsing magnetic field generates a reverse-polarity voltage spike. Use diodes (or a motor driver IC that includes them) across the motor terminals.
+- **Abrupt direction reversal without braking** — reversing a spinning motor at full speed causes a voltage spike. Ramp down, stop briefly, then ramp up in reverse.
+- **Ignoring gear ratio for torque calculations** — a motor rated at 1 kg·cm torque at the raw shaft produces 48 kg·cm after a 48:1 gearbox — but at 1/48 the speed.
+</CommonMistakeBox>
+
+<FailureSignsBox>
+- **Motor doesn't spin, L298N gets hot immediately** — motor is stalled against mechanical stop, or motor terminals are shorted
+- **Arduino resets when motor starts** — power brownout: motor drawing too much current from Arduino power rail; use separate motor power supply
+- **Motor speed is erratic / random** — no common ground between motor driver and Arduino; or PWM frequency too low causing audible buzzing and irregular motion
+- **Motor only runs in one direction** — IN1/IN2 wired backwards or one signal stuck HIGH; check logic pin connections
+- **Motor hums but doesn't rotate** — supply voltage too low to overcome static friction; increase supply voltage or reduce load
+</FailureSignsBox>
+
+## Robotics and AI use cases
+
+<AIUseCaseBox title="DC Motors in Physical AI Systems">
+
+- **Differential drive mobile base** — two DC motors with encoders provide odometry (position estimate from wheel rotation counts). The standard navigation stack in ROS uses this architecture.
+- **End-effector translation** — linear slides and conveyor belts in pick-and-place robots use DC motors for high-speed, high-torque translation.
+- **Winch-driven parallel robots** — cables attached to DC motor spools position end-effectors via tension; used in cable-driven rehabilitation robots.
+- **Encoder feedback for closed-loop control** — attach a quadrature encoder to a DC motor shaft to measure actual speed. Feed this to a PID controller for precise velocity tracking — essential for stable mobile robot navigation.
+- **Brushless upgrade path** — brushless DC motors (BLDC) follow the same electrical principles but use electronic commutation (ESC/FOC controller). Understanding brushed motors first makes BLDC comprehensible.
+
+</AIUseCaseBox>
+
+## Beginner project — Variable speed fan
+
+Wire a DC fan motor to an L298N and control its speed with a potentiometer. Turn the pot — fan speed changes proportionally.
+
+**Key learning:** PWM as voltage control, the `map()` function, motor driver enable pin.
+
+## Advanced project — Differential drive robot with encoder odometry
+
+Build a two-wheeled robot. Attach hall-effect encoders to each motor (many TT motor packs include them). Count pulses in interrupt service routines. At each control loop iteration, compute wheel velocity from pulse delta and time delta. Use a PID controller to maintain equal wheel speeds for straight-line driving.
+
+**Key learning:** Hardware interrupts, encoder pulse counting, PID velocity control, differential drive kinematics.
+
+<NextStepBox title="Next components">
+  <NextStep href="/hardware/motor-driver" label="Motor Driver (L298N)" description="Required: the H-bridge IC that actually drives your DC motor" />
+  <NextStep href="/hardware/servo-motor" label="Servo Motor" description="Position-controlled alternative for joints" />
+  <NextStep href="/hardware/arduino" label="Arduino" description="Microcontroller providing PWM and direction signals" />
+  <NextStep href="/hardware/imu-sensor" label="IMU Sensor" description="Add tilt and orientation feedback to your robot" />
+</NextStepBox>
